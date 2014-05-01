@@ -9,6 +9,7 @@
     <script src="js/jquery-1.11.0.min.js"></script>
 		<script src="js/graphics.js"></script>
 		<script src="js/map.js"></script>
+		<script src="js/actor.js"></script>
 	</head>
 	<!-- <body style="position: fixed; overflow-y: scroll; width: 100%;"	> -->
 	<body>
@@ -372,13 +373,6 @@
 				lastKeyDownTime : 0,
 				keyDownMinInterval : 100
 			};
-
-			var actor = {
-				x : 0,
-				y : 0,
-				name : "",
-				cellLoop : 0
-			};
 			
 			var tileProperties = [];
 			tileProperties[1] = { d:[0, 0, 0]};
@@ -444,23 +438,9 @@
 					$('.v_debugText6').val("touchmove / " + new Date().getTime());
 				});
 
-				CURRENTSTATE.actors[0] = {};
-				CURRENTSTATE.actors[0].name = "Hero";
-				CURRENTSTATE.actors[0].x = 9;
-				CURRENTSTATE.actors[0].y = 7;
-				CURRENTSTATE.actors[0].cellLoop = 301;
-
-				CURRENTSTATE.actors[1] = {};
-				CURRENTSTATE.actors[1].name = "orc";
-				CURRENTSTATE.actors[1].x = 4;
-				CURRENTSTATE.actors[1].y = 5;
-				CURRENTSTATE.actors[1].cellLoop = 302;
-
-				CURRENTSTATE.actors[2] = {};
-				CURRENTSTATE.actors[2].name = "headless";
-				CURRENTSTATE.actors[2].x = 5;
-				CURRENTSTATE.actors[2].y = 3;
-				CURRENTSTATE.actors[2].cellLoop = 303;
+				CURRENTSTATE.actors[0] = new Actor(9, 7, "Hero", 301);
+				CURRENTSTATE.actors[1] = new Actor(4, 5, "orc", 302);
+				CURRENTSTATE.actors[2] = new Actor(5, 3, "headless", 303);
 
         global.map = new Map();
         global.map.init();
