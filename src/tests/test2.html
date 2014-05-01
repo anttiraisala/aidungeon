@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="no-js">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Test2</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<!-- Add your site or application content here -->
+		<p>
+			TEST2
+		</p>
+
+		<!-- <img src = "../imgs/tileSets/ultima_v_5_warriors_of_destiny_tileset.PNG" /> -->
+		<div id="jQueryVersion"></div>
+
+		<canvas id="canvasMap" width="800px" height="600px" style="border: solid 1px;"></canvas>
+
+		<script src="../js/jquery-1.11.0.min.js"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#jQueryVersion").text("jQuery " + $.fn.jquery);
+
+				canvasCtx = $("#canvasMap")[0].getContext('2d');
+				//alert("canvasCtx:" + canvasCtx);
+				
+				img1Load();
+			});
+
+			var img1Load = function() {
+				this.image1 = new Image();
+
+				var src = "../imgs/tileSets/2D Circle Graphic/TEST7B.bmp";
+				this.image1.onload = function() {
+					//alert("onload:" + src);
+					//alert("this.src:" + this.src);
+
+					gImgLandscape = this;
+
+					img2Load();
+
+				};
+				this.image1.src = src;
+			};
+
+			var img2Load = function() {
+				this.image1 = new Image();
+
+				var src = "../imgs/tileSets/TileB.png";
+				this.image1.onload = function() {
+					//alert("onload:" + src);
+					//alert("this.src:" + this.src);
+
+					gImgDecals = this;
+
+					phase2();
+
+				};
+				this.image1.src = src;
+			};
+
+			var phase2 = function() {
+				//alert("phase2");
+				//alert("gImage:" + gImage.src);
+
+				var startX = 256;
+				var startY = 384;
+				var width = 32;
+				var height = 63;
+
+				canvasCtx.drawImage(gImgLandscape, 0, 0);
+				canvasCtx.drawImage(gImgDecals, startX, startY, width, height, 400, 300, width, height);
+				canvasCtx.drawImage(gImgDecals, startX, startY, width, height, 200, 300, width*3, height*3);
+				
+				//
+				var cactus = {};
+				cactus.startX = 195;
+				cactus.startY = 416;
+				cactus.width = 29;
+				cactus.height = 32;
+				cactus.hotSpotX = 13;
+				cactus.hotSpotY = 31;
+				//
+				canvasCtx.drawImage(gImgDecals, cactus.startX, cactus.startY, cactus.width, cactus.height, 416-cactus.hotSpotX, 309-cactus.hotSpotY, cactus.width, cactus.height);
+
+				
+				
+				alert("done");
+			};
+
+		</script>
+
+		<script>
+			var allImagesAreLoaded = function() {
+				alert("allImagesAreLoaded");
+
+			};
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,255 @@
+Hakee objektin spring/config-tiedostosta:
+UserActivitySettings userActivitySettings = SpringHelper.GetObjectFromSpringContext<UserActivitySettings>("userActivitySettings");
+SpringHelper.AppContext.ConfigureObject(_instance, "exportSettings");
+
+JavaScript redirect
+-------------------
+window.location = "http://www.google.com";
+
+Olion luonti Spring:llä
+----------------------------------------------------------------------
+C#:
+public Tuple<string, string> Tutteli { get; set; }
+
+Spring:
+<property name="Tutteli">
+	<object type="System.Tuple&lt;string, string>">
+		<constructor-arg index="0" value="Label.Description"/>
+		<constructor-arg index="1" value="Description"/>
+	</object>
+</property>
+
+Merkkijonon lukeminen tiedostosta:
+string xmlString = EmbeddedResourceHelper.Get("Orchidea.Business.Logic.XML.Templates.Portrait.xml").ToString();
+
+
+
+
+Redirect
+-------------------------------------------------------------------------
+this.Context.Response.Redirect(SearchHelper.GetSearchUrl(this.CurrentItemType, tab));
+this.Context.Response.Redirect(this.NavigateUrl);
+this.Page.Response.Redirect("~/Default.aspx");
+this.Response.Redirect(SearchHelper.GetSearchUrl(this.CurrentItemType, (this.Page as PageBase).MasterTab));
+this.Response.Redirect(SearchHelper.GetSearchUrl(null, MasterTab.Items));
+this.Response.Redirect(QueryStringHelper.CreateUrl("~/view/Details.aspx", "itemGuid", this.CurrentItem.Guid));
+UrlBuilder.BuildRequestUrl("OtherSetKey", this.CurrentItem.Guid)
+this.Response.Redirect(this.Request.RawUrl);
+
+Redirect (from MVC controller)
+-----------------------------------
+[HttpGet]
+public ActionResult GetXyz()
+{
+	...
+
+	// Forward browser (to search page) by returning RedirectResult-object
+	return new RedirectResult(SearchHelper.GetSearchUrl(itemType, MasterTab.Items));
+}
+
+
+Spring-konfiguraation sisältämät objektit
+---------------------------------------------------------------
+SpringHelper.AppContext.GetObjectDefinitionNames()
+
+
+Telerik Grid , taulun lukeminen
+--------------------------------------------
+(this.pendingRequests.Grid.MasterTableView.Items[0] as Telerik.Web.UI.GridDataItem)
+this.pendingGrid.AllowMultiRowSelection=false
+this.pendingGrid.ClientSettings.Selecting.AllowRowSelect=false
+this.pendingGrid.Columns.FindByUniqueName("ClientSelectColumn").Visible=false
+
+
+.ASPX
+<telerik:RadGrid ID="similarItemsGrid" ....
+
+	<telerik:GridTemplateColumn UniqueName="cItemId">
+		<ItemTemplate>
+			<asp:Label ID="lblId" runat="server" Text='<%# GetInt(Container.DataItem, "ItemID") %>' />
+		</ItemTemplate>
+	</telerik:GridTemplateColumn>
+
+	<telerik:GridTemplateColumn UniqueName="cRelated">
+		<ItemTemplate>								
+			<asp:CheckBox  ID="cbx_Related" GroupName='<%# "RadioButtonGroup"+GetInt(Container.DataItem, "ItemID")  %>' runat="server" Checked='<%# GetBool(Container.DataItem, "Related") %>'  />
+		</ItemTemplate>
+	</telerik:GridTemplateColumn>
+	
+</telerik:RadGrid>
+
+<asp:Button ID="btnUpdate" runat="server" Text="Update" OnClick="btnUpdate_Click" />
+									
+.C#
+protected void btnUpdate_Click(object sender, EventArgs e)
+{
+	foreach (Telerik.Web.UI.GridDataItem gdi in this.similarItemsGrid.MasterTableView.Items)
+	{
+		Label label = (gdi.FindControl("lblId") as Label);
+		CheckBox chkBox = (gdi.FindControl("cbx_Related") as CheckBox);
+	}
+}
+
+
+Calling Javascript after asp:UpdatePanel gets updated
+-----------------------------------------------------------
+Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
+	// action
+	alert("Update panel was updated!");
+});
+
+
+
+Javascript / kapselointi / encapsulation
+---------------------------------------------------
+itemRotator = (function () {
+	var isRunning = function (rotator) {
+		return rotator.autoIntervalID != null;
+	}
+	var scroll = function (rotator, direction) {
+		var wasRunning = isRunning(rotator);
+		itemRotator.stop(rotator)
+		rotator.showNext(direction);
+		if (wasRunning)
+			itemRotator.start(rotator);
+	}
+	return {
+		start: function (rotator) {
+			if (!isRunning(rotator)) {
+				rotator.autoIntervalID = window.setInterval(function () {
+					if (rotator.get_element()) {
+						rotator.showNext(Telerik.Web.UI.RotatorScrollDirection.Left);
+					}
+					else {
+						// If element doesn't exist stop rotator interval. Fix for update panel update.
+						itemRotator.stop(rotator);
+					}
+				}, rotator.get_frameDuration());
+			}
+		},
+		stop: function (rotator) {
+			if (isRunning(rotator)) {
+				window.clearInterval(rotator.autoIntervalID);
+				rotator.autoIntervalID = null;
+			}
+		},
+		left: function (rotator) {
+			scroll(rotator, Telerik.Web.UI.RotatorScrollDirection.Right);
+		},
+		right: function (rotator) {
+			scroll(rotator, Telerik.Web.UI.RotatorScrollDirection.Left);
+		},
+		mouseOver: function (current) {
+			$(current).find(".RotatorButtons").css("visibility", "");
+		},
+		mouseOut: function (current) {
+			$(current).find(".RotatorButtons").css("visibility", "hidden");
+		}
+	};
+})();
+
+Call C# from Javascript/MVC
+-----------------------------------
+JavasScript:
+var url = app.PATH + 'Item/RemoveRelation';
+	 				url += '?itemId=@currentItem.Id';
+	 				url += '&relationId=@dataRow["Id"]';
+	 				alert(url);
+					$.post(url, function (data) {
+						$('.result_@dataRow["Id"]').html(data);
+					});
+					
+C#
+[HttpPost]
+public void RemoveRelation(int itemId, int relationId)
+{
+	Implementations.RelationManager.RemoveRelation(itemId, relationId);
+}
+
+jQuery serialize() / MVC controller / List<int> check, FormCollection form
+------------------------------------------------------------------------
+JavaScript
+$.post('ControllerName/MethodXyz/', 
+	$( "input, textarea, select" ).serialize(), 
+	function (data) {}
+);
+
+C#
+public ActionResult MethodXyz(List<int> check, FormCollection form)
+{
+	...
+}
+
+Jos on useita "check" nimisiä input-fieldejä, joiden arvona on int => menevät List:aan. Kaikki serialisoidut parametrit menevät form-muuttujaan.
+
+
+JavaScript-objektin printtaaminen
+-----------------------------------
+ console.log('object=' + JSON.stringify(object, null, 4));
+ alert('object=' + JSON.stringify(object, null, 4));
+ 
+ 
+ 
+c# Asp.NET MVC, Javascript $.post -> MVC Controller -> redirect
+----------------------------------------------------------------
+
+c#
+[HttpPost]
+public ActionResult MethodXYZ(string str)
+{
+	return Json(new { RedirectUrl = Url.Content("http://www.google.com") });
+}
+
+JavaScript
+$.post('ControllerName/MethodXYZ/', {
+	str: "rocknroll"
+}, function (data) {
+	if (data.RedirectUrl) {
+		window.location = data.RedirectUrl;
+	}
+});
+
+Javascript Razor-failissa
+--------------------------------
+Vaihtoehto#1
+@Html.ScriptBlock(
+	@<text>
+		<script type="text/javascript">
+			$(document).ready(function () {
+
+				alert("Document ready.");
+
+			});
+		</script>
+	</text>
+)
+
+Vaihtoehto#2, JS omassa failissaan
+@Html.ScriptBlock(
+	@<text>
+		@Scripts.Render("~/scripts/bundles/settings.sms/js")
+	</text>
+)
+
+Read JSON from file in Javascript
+--------------------------------------------------------------
+<script src="file://c:\\data\\activity.jsonp"></script>
+<script type="text/javascript">
+  function updateMe(){
+    var x = 0;
+    var activity=jsonstr;
+    foreach (i in activity) {
+        date = document.getElementById(i.date).innerHTML = activity.date;
+        event = document.getElementById(i.event).innerHTML = activity.event;
+    }
+  }
+</script>
+
+And the file c:\data\activity.jsonp contains the following line:
+
+jsonstr = [ {"date":"July 4th", "event":"Independence Day"} ];
+
+
+
+
+

@@ -1,0 +1,155 @@
+	
+Resurssitekstien käyttö MVC:llä
+-------------------------------
+var resources = Orchidea.Business.Logic.Implementations.ResourceManager.GetState();
+
+Default-arvo SecurityValidatorille koodissa
+-------------------------------------------
+private ISecurityValidator _deleteSecurityValidator = Orchidea.Common.SpringHelper.GetObjectFromSpringContext<ISecurityValidator>("svDenied");
+		public ISecurityValidator DeleteSecurityValidator
+		{ 
+			get { return this._deleteSecurityValidator; } 
+			set { this._deleteSecurityValidator = value; } 
+		}
+
+
+	
+Orchidea.Web.ActionPageBase
+----------------------------
+* lataa item detail -sivun kontrollit
+
+Konfiguraation lukeminen ohjelmallisesti ja konfiguraatioon viittaaminen
+------------------------------------------------------------------------
+* SpringHelper.AppContext.ConfigureObject(_exportSettings = new ExcelXMLExportSettings(), "commonExcelXmlExportSettings");
+* if (Orchidea.Web.Configuration.Current.Challenge.ShowConcepts)
+  { ... }	 
+
+	<object id="configuration" abstract="true">
+		<property name="Challenge.ShowConcepts" value="true" />
+	</object>
+	
+	
+Partial View:n käyttäminen
+------------------------------
+<% Orchidea.Web.Core.WebFormMVCUtil.RenderPartial       (Context, "Challenge", "_RawItemGrid", null, new Dictionary<string, object>() { { "UseForm", false } }); %>
+
+<%# Orchidea.Web.Core.WebFormMVCUtil.RenderPartialToString(Context, "Item", "_TrafficLight", (Container.DataItem as DataRowView)["Id"], new Dictionary<string, object>() { { "UseForm", false } }) %></div>
+
+@{ Html.RenderPartial("_Bookmark"); }
+
+	$.post(app.PATH + 'bookmarks/' + url + '/' + @itemId, function (data) {
+	 				$('.result').html(data);
+	 			});
+				
+				
+<%# Orchidea.Web.Core.WebFormMVCUtil.RenderPartialToString(Context, "Challenge", "_Bookmark", DataBinder.Eval(Container.DataItem, "Id"), new Dictionary<string, object>() { { "UseForm", false } }) %>
+
+<%# Orchidea.Web.Core.WebFormMVCUtil.RenderPartialToString(Context, "Challenge", "_Bookmark", (Container.DataItem as DataRowView)["Id"], new Dictionary<string, object>() { { "UseForm", false } }) %>
+
+<% Orchidea.Web.Core.WebFormMVCUtil.RenderPartial(Context, "Item", "_Relations", this._items, new Dictionary<string, object>() { { "UseForm", false } }); %>
+
+string findItems = Orchidea.Web.Core.WebFormMVCUtil.RenderPartialToString(
+						this.Context, "Item", "_FindChallengeItems",
+						new Orchidea.Web.Mvc.Models.ItemModels.FindChallengeItemsOptions() { Challenge = currentChallenge, ItemType = itemType, CssClass = this.LinkCssClass }, new Dictionary<string, object>() { { "UseForm", false } });
+						
+var findItems = Html.Partial("~/Views/Item/Partial/_FindChallengeItems.cshtml", new Orchidea.Web.Mvc.Models.ItemModels.FindChallengeItemsOptions() { Challenge = Model, ItemType = itemType });
+
+@{ Html.RenderPartial("~/Views/Shared/_ActiveUsers.cshtml"); }
+@{ Html.RenderPartial("_UserSelector", userSelectorOptions); }
+@{ Html.RenderPartial("~/Views/UserSettings/Partial/_LanguageSelector.cshtml", null); }
+
+
+
+external JavaScript / kapselointi / CSHTML / parametrit / bundlaus
+----------------------------------------------------------
+----------
+.CSHTML:
+----------
+@Html.ScriptBlock(
+	@<text>
+		<script type="text/x-kendo-template" id="saveItemSearchTooltip">
+			<span id="saveQueryToolTip">
+				<input type="text" name="FileName" value="@Html.JavaScriptDecodedResource("Label.SaveCurrentSearch.EmptyMessage")" onclick="app.saveItemSearch.textClicked.call(this);" /><br/>
+				<input type="button" name="btnSave" value="@Html.JavaScriptDecodedResource("Button.Save")" onclick="app.saveItemSearch.saveQuery.call(this);" />
+			</span>
+		</script>
+		
+		@Scripts.Render("~/scripts/bundles/save.item.search/js")
+		
+		<script type="text/javascript">
+			app.saveItemSearch.initialize(@((int)Model.MasterTab), '@itemType.TypeNameKey', '@SavedSearch.DEFAULT_NAME', '@Html.JavaScriptDecodedResource("StatusMessage.ActionSuccessful")' , '@Html.JavaScriptDecodedResource("StatusMessage.ActionFailed")');
+		</script>
+	</text>
+)
+----------
+----------
+
+
+----------
+JavaScript ( save.item.search.js ):
+----------
+(function () {
+	var initialize = function (masterTab, typeNameKey, defaultName, successMessage, failMessage) {
+
+		$(document).ready(function () {
+		...			
+
+		});
+
+		// Is text box clicked once already?
+		textClicked = function () {
+			....
+		};
+
+		saveQuery = function () {
+			...
+		};
+
+		app.saveItemSearch.textClicked = textClicked;
+		app.saveItemSearch.saveQuery = saveQuery;
+	};
+
+	app.saveItemSearch = {
+		initialize: initialize
+	};
+
+})();
+----------
+----------
+
+
+----------
+\src\Web\Global.asax.cs:
+----------
+public static void RegisterBundles()
+{
+	bundles.Add(new ConditionallyMinifyingScriptBundle("~/scripts/bundles/save.item.search/js").Include("~/scripts/save.item.search.js"));
+}
+----------
+----------
+
+SSO:n poistaminen, jotta softan saa käyntiin paikallisesti
+---------------------------------------------------------------
+system.config -tiedostosta kaikki pois ja homma toimii.
+
+Tarkasta myös connectionStrings.config mihin kantaan otetaan yhteyttä.
+
+http://obiwan/VR
+http://obiwan/Dev.VR/
+
+//*****************************************************************************
+-- classification nodes of item
+select distinct item.*, node.*
+from ItemBase item
+join Information info on info.ItemId = item.Id
+join NodeForInformationNode nfi on nfi.InformationId = info.Id
+join Node node on node.Id = nfi.NodeId
+order by item.Created desc, node.[Key]
+//*****************************************************************************
+
+
+
+
+
+
+	

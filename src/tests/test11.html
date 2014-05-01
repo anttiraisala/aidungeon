@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html class="no-js">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Test11</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<!-- Add your site or application content here -->
+		<p>
+			TEST11
+		</p>
+
+		<div id="jQueryVersion"></div>
+		<div id="fpsCounter"></div>
+
+		<input class="v_debugText" type="text" size="50" />
+		<br />
+		<input class="v_debugText2" type="text" size="35" />
+		<input class="v_debugText3" type="text" size="35" />
+		<input class="v_debugText4" type="text" size="35" />
+		<br />
+		<input class="v_debugText5" type="text" size="35" />
+		<input class="v_debugText6" type="text" size="35" />
+		<input class="v_debugText7" type="text" size="35" />
+		<br />
+		<canvas class="v_canvasMap" width="800px" height="600px" style="border: solid 1px;" tabindex="1">
+			Could not create Canvas!
+		</canvas>
+
+		<script src="../js/jquery-1.11.0.min.js"></script>
+		<script src="../js/graphics.js"></script>
+
+		<!-- Graphical stuff begins -->
+
+		<script type="text/javascript">
+			var drawMap = function() {
+				var tileSize = CURRENTSTATE.mapTileSize * CURRENTSTATE.mapCanvasZoom;
+				var horizontalTileCount = Math.ceil(CURRENTSTATE.mapCanvasWidth / tileSize);
+				var verticalTileCount = Math.ceil(CURRENTSTATE.mapCanvasHeight / tileSize);
+				// console.log('ht=' + horizontalTileCount + ' vt=' + verticalTileCount);
+
+				// TODO : make canvasCtx as global
+
+				var canvasCtx = $(".v_canvasMap:first")[0].getContext('2d');
+				canvasCtx.clearRect(0, 0, CURRENTSTATE.mapCanvasWidth, CURRENTSTATE.mapCanvasHeight);
+				canvasCtx.fillStyle = "#FF0000";
+				canvasCtx.fillRect(0, 0, 150, 75);
+
+				var fillStyles = [];
+				fillStyles[1] = "#000000";
+				fillStyles[2] = "#00AF00";
+				fillStyles[3] = "#20FF20";
+				fillStyles[10] = "#C0C0C0";
+				fillStyles[20] = "#0000FF";
+				fillStyles[21] = "#0000A0";
+
+				var bottomLeftCornerX = CURRENTSTATE.characters[0].x - Math.ceil(horizontalTileCount / 2);
+				var bottomLeftCornerY = CURRENTSTATE.characters[0].y - Math.ceil(verticalTileCount / 2);
+
+				for (var y = 0; y < verticalTileCount; y++) {
+					for (var x = 0; x < horizontalTileCount; x++) {
+
+						var mapDataX = bottomLeftCornerX + x;
+						var mapDataY = bottomLeftCornerY + y;
+
+						if (mapDataX < 0 || mapDataX >= worldMap.width || mapDataY < 0 || mapDataY >= worldMap.height) {
+
+							if (false) {
+								while (mapDataX < 0) {
+									mapDataX += worldMap.width;
+								}
+								while (mapDataY < 0) {
+									mapDataY += worldMap.height;
+								}
+								while (mapDataX >= worldMap.width) {
+									mapDataX -= worldMap.width;
+								}
+								while (mapDataY >= worldMap.height) {
+									mapDataY -= worldMap.height;
+								}
+							} else {
+								continue;
+							}
+						}
+
+						var mapData = worldMap.tiles[mapDataX][mapDataY];
+
+						if (global.imageCellLoops[mapData] != undefined) {
+							var cellLoop = global.imageCellLoops[mapData];
+							//cellLoop.advanceTime();
+							drawImageCellOntoCanvas(canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, CURRENTSTATE.mapCanvasZoom);
+
+						} else {
+							canvasCtx.fillStyle = fillStyles[mapData];
+							canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
+						}
+					}
+				}
+				/*
+				var canvasCtx = $(".v_canvasMap:first")[0].getContext('2d');
+
+				global.imageCellLoops.forEach(function(imageCellLoop) {
+				if (imageCellLoop.advanceTime() == true) {
+				drawImageCellOntoCanvas(canvasCtx, imageCellLoop.getCurrentFrame(), 550, 450);
+				}
+				});
+				*/
+				//console.log(canvasCtx);
+
+				//console.log(global.imageCellLoops[20]);
+				//console.log(global.imageCellLoops[20].getCurrentFrame());
+
+				//console.log(global.imageCellLoops[20].getCurrentFrameIndex());
+				//console.log(CURRENTSTATE.imageCellLoops[20].getCurrentFrameIndex());
+				//CURRENTSTATE.imageCellLoops[20].advanceTime();
+				//console.log(CURRENTSTATE.imageCellLoops[20].getCurrentFrameIndex());
+
+			};
+
+		</script>
+
+		<script type="text/javascript">
+			$(window).ready(function() {
+
+				console.log('document ready');
+
+				init();
+
+				initPhase1();
+
+			});
+
+			var initPhase1 = function() {
+				initializeGraphics();
+			};
+
+			var initPhase2 = function() {
+				animationTimeKeepingLoop();
+
+				window.setInterval(mainLoop, 0);
+				window.setInterval(drawMap, 0);
+			};
+
+			var initializeGraphics = function() {
+				rawImageRepository.addSourcePath("../imgs/tileSets/Ultima_5_-_Tiles.png");
+
+				rawImageRepository.loadRawImages(function() {
+					createImageCellLoops();
+
+					initPhase2();
+				});
+			};
+
+			var createImageCellLoops = function() {
+				//alert("createImageCellLoops");
+
+				var imageCellLoop1 = new imageCellLoop();
+				imageCellLoop1.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 388, 320, 26, 32, 13, 32), 500);
+				imageCellLoop1.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 420, 320, 24, 32, 10, 32), 250);
+				imageCellLoop1.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 452, 320, 26, 32, 13, 32), 500);
+				imageCellLoop1.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 486, 320, 24, 32, 11, 32), 250);
+				//
+				//global.imageCellLoops.push(imageCellLoop1);
+				//global.imageCellLoops.push(imageCellLoop1);
+
+				var deepWaterLoop = new imageCellLoop();
+				deepWaterLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 16, 0, 16, 16, 0, 0), 500);
+				deepWaterLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 32, 0, 16, 16, 0, 0), 500);
+				//
+				global.imageCellLoops[20] = deepWaterLoop;
+
+				var shallowWaterLoop = new imageCellLoop();
+				shallowWaterLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 48, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[21] = shallowWaterLoop;
+
+				var denseWoodsLoop = new imageCellLoop();
+				denseWoodsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 160, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[2] = denseWoodsLoop;
+
+				var lesserWoodsLoop = new imageCellLoop();
+				lesserWoodsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 144, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[3] = lesserWoodsLoop;
+
+				var wallLoop = new imageCellLoop();
+				wallLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 240, 32, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[10] = wallLoop;
+
+				var secretWallLoop = new imageCellLoop();
+				secretWallLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 224, 32, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[11] = secretWallLoop;
+
+				var plankFloorLoop = new imageCellLoop();
+				plankFloorLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 144, 32, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[12] = plankFloorLoop;
+
+				var grassLandsLoop = new imageCellLoop();
+				grassLandsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 82, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[1] = grassLandsLoop;
+
+				var highMountainsLoop = new imageCellLoop();
+				highMountainsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 208, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[62] = highMountainsLoop;
+
+				var medMountainsLoop = new imageCellLoop();
+				medMountainsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 192, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[61] = medMountainsLoop;
+
+				var lowMountainsLoop = new imageCellLoop();
+				lowMountainsLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 176, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[60] = lowMountainsLoop;
+
+				var marshLoop = new imageCellLoop();
+				marshLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 64, 0, 16, 16, 0, 0), 1000);
+				//
+				global.imageCellLoops[59] = marshLoop;
+
+				var strangeWormLoop = new imageCellLoop();
+				strangeWormLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 384, 240, 16, 16, 0, 0), 4001);
+				strangeWormLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 400, 240, 16, 16, 0, 0), 333);
+				strangeWormLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 416, 240, 16, 16, 0, 0), 333);
+				strangeWormLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 432, 240, 16, 16, 0, 0), 333);
+				//
+				global.imageCellLoops[200] = strangeWormLoop;
+
+			};
+
+			global = function() {
+				var value = {
+					lastTime : 0,
+					fpsCounter : 0,
+					lastAnimateStartTime : 0,
+					dAnimateStartTime : 0,
+					//
+					map : [],
+					//
+					imageCellLoops : []
+				};
+
+				return value;
+			}();
+
+			function animationTimeKeepingLoop() {
+				requestAnimFrame(animationTimeKeepingLoop);
+
+				// Finally update fpsCounter
+				var d = new Date();
+				var currentTime = d.getTime();
+
+				// Update global time keeping variables
+				global.dAnimateStartTime = currentTime - global.lastAnimateStartTime;
+				global.lastAnimateStartTime = currentTime;
+
+				//game.background.draw();
+
+				global.fpsCounter++;
+				if (currentTime - global.lastTime >= 1000) {
+					global.lastTime = currentTime;
+
+					var hours = d.getHours();
+					var minutes = d.getMinutes();
+					var seconds = d.getSeconds();
+
+					$("#fpsCounter:first").text(global.fpsCounter + "fps : " + currentTime + " : " + (hours < 10 ? "0" : "") + hours + "." + (minutes < 10 ? "0" : "") + minutes + "." + (seconds < 10 ? "0" : "") + seconds + " :: " + global.dAnimateStartTime + "ms");
+					global.fpsCounter = 0;
+				}
+
+				global.imageCellLoops.forEach(function(imageCellLoop) {
+					imageCellLoop.advanceTime();
+				});
+
+				// Execute game loop
+				//gameLoop();
+
+			};
+
+			/**
+			 * requestAnim shim layer by Paul Irish
+			 * Finds the first API that works to optimize the animation loop,
+			 * otherwise defaults to setTimeout().
+			 */
+			window.requestAnimFrame = (function() {
+				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+				function(/* function */callback, /* DOMElement */element) {
+					window.setTimeout(callback, 1000 / 60);
+				};
+			})();
+
+			drawImageCellOntoCanvas = function(targetCanvasContext, sourceImageCell, targetX, targetY, zoom) {
+				if (zoom == undefined) {
+					zoom = 1;
+				}
+
+				targetCanvasContext.drawImage(sourceImageCell.rawImageSource, sourceImageCell.startX, sourceImageCell.startY, sourceImageCell.width, sourceImageCell.height, targetX - sourceImageCell.hotSpotX, targetY - sourceImageCell.hotSpotY, sourceImageCell.width * zoom, sourceImageCell.height * zoom);
+			};
+
+		</script>
+
+		<!-- Graphical stuff ends -->
+
+		<script type="text/javascript">
+			var MAINLOOPSTATE = {
+				MAP : 1,
+				DISCUSSION : 2
+			};
+
+			var CURRENTSTATE = {
+				mapCanvasWidth : 800,
+				mapCanvasHeight : 600,
+				mapTileSize : 16,
+				mapCanvasZoom : 3,
+				mainLoopState : MAINLOOPSTATE.MAP,
+				keyDowns : [],
+				characters : [],
+				lastKeyDownTime : 0,
+				keyDownMinInterval : 100
+			};
+
+			var character = {
+				x : 0,
+				y : 0,
+				name : ""
+			};
+
+			var worldMap = {
+				tiles : {},
+				width : 10,
+				height : 10
+			};
+
+		</script>
+
+		<script type="text/javascript">
+			var mapData = [];
+			for (var x = 0; x < 10; x++) {
+				mapData[x] = new Array(10);
+				for (var y = 0; y < 10; y++) {
+					mapData[x][y] = 1;
+				}
+			}
+
+			// House
+			mapData[6][3] = 10;
+			mapData[6][2] = 10;
+			mapData[6][1] = 11;
+			// Secret Door !
+			mapData[6][0] = 10;
+			mapData[7][0] = 10;
+			mapData[8][0] = 10;
+			mapData[9][0] = 10;
+			mapData[9][1] = 10;
+			mapData[9][2] = 10;
+			mapData[9][3] = 10;
+			mapData[8][3] = 10;
+			//
+			// Floor
+			mapData[7][3] = 12;
+			mapData[7][2] = 12;
+			mapData[7][1] = 12;
+			mapData[8][2] = 12;
+			mapData[8][1] = 12;
+
+			// Deeper water
+			mapData[0][8] = 20;
+			mapData[0][7] = 20;
+			mapData[0][6] = 20;
+			mapData[0][5] = 20;
+			mapData[1][8] = 20;
+			mapData[1][7] = 20;
+			mapData[1][6] = 20;
+			mapData[1][5] = 20;
+			mapData[1][4] = 20;
+			mapData[2][7] = 20;
+			mapData[2][6] = 20;
+
+			// Shallow water
+			mapData[2][5] = 21;
+			mapData[2][4] = 21;
+			mapData[3][5] = 21;
+			mapData[3][4] = 21;
+			mapData[3][3] = 21;
+
+			// Dense woods
+			mapData[7][8] = 2;
+
+			// Smaller woods
+			mapData[6][7] = 3;
+			mapData[7][7] = 3;
+
+			// Low Mountains
+			mapData[1][3] = 60;
+			mapData[0][2] = 60;
+			mapData[3][2] = 60;
+			mapData[0][1] = 60;
+			mapData[3][1] = 60;
+			mapData[1][0] = 60;
+			mapData[2][0] = 60;
+
+			// Medium Mountains
+			mapData[1][2] = 61;
+			mapData[2][2] = 61;
+			mapData[2][1] = 61;
+
+			// High Mountains
+			mapData[1][1] = 62;
+
+			// Marsh
+			mapData[2][3] = 59;
+
+			// Strange Worm
+			mapData[0][4] = 200;
+
+			//console.log('mapData=' + JSON.stringify(mapData, null, 4));
+
+			worldMap.tiles = mapData;
+
+			//console.log('worldMap.tiles=' + JSON.stringify(worldMap.tiles, null, 4));
+		</script>
+
+		<script type="text/javascript">
+			cl = function(name, pObject) {
+				if (name == undefined || name == null) {
+					console.log(JSON.stringify(pObject, null, 4));
+				} else {
+					console.log(name + ":" + JSON.stringify(pObject, null, 4));
+				}
+			};
+
+		</script>
+
+		<script type="text/javascript">
+			var init = function() {
+				$(".v_canvasMap:first").on("keydown", "", function(event) {
+					//event.preventDefault();
+					//console.log("keydown" + event.which);
+					CURRENTSTATE.keyDowns[event.which] = true;
+				});
+
+				$(".v_canvasMap:first").on("keyup", "", function(event) {
+					//event.preventDefault();
+					//console.log("keyup" + event.which);
+
+					CURRENTSTATE.keyDowns[event.which] = false;
+				});
+
+				$(".v_canvasMap:first").on("mousedown", function(event) {
+					//event.preventDefault();
+					$('.v_debugText2').val("mousedown / " + new Date().getTime());
+				});
+
+				$(".v_canvasMap:first").on("mouseup", function(event) {
+					//event.preventDefault();
+					$('.v_debugText4').val("mouseup / " + new Date().getTime());
+				});
+
+				$(".v_canvasMap:first").on("mousemove", function(event) {
+					//event.preventDefault();
+					$('.v_debugText3').val("mousemove / " + new Date().getTime());
+				});
+
+				$(".v_canvasMap:first").on("touchstart", function(event) {
+					//event.preventDefault();
+					$('.v_debugText5').val("touchstart / " + new Date().getTime());
+				});
+
+				$(".v_canvasMap:first").on("touchend", function(event) {
+					//event.preventDefault();
+					$('.v_debugText7').val("touchend / " + new Date().getTime());
+				});
+
+				$(".v_canvasMap:first").on("touchmove", function(event) {
+					//event.preventDefault();
+					$('.v_debugText6').val("touchmove / " + new Date().getTime());
+				});
+
+				CURRENTSTATE.characters[0] = {};
+				CURRENTSTATE.characters[0].name = "Hero";
+				CURRENTSTATE.characters[0].x = 5;
+				CURRENTSTATE.characters[0].y = 5;
+
+				CURRENTSTATE.characters[1] = {};
+				CURRENTSTATE.characters[1].name = "monster 1";
+				CURRENTSTATE.characters[1].x = 4;
+				CURRENTSTATE.characters[1].y = 5;
+
+				//console.log('CURRENTSTATE.characters[0]=' + JSON.stringify(CURRENTSTATE.characters[0], null, 4));
+				//console.log('CURRENTSTATE.characters[1]=' + JSON.stringify(CURRENTSTATE.characters[1], null, 4));
+				//console.log('CURRENTSTATE=' + JSON.stringify(CURRENTSTATE, null, 4));
+			};
+
+			var isKeyDown = function(keyCode) {
+				result = 0;
+
+				if (CURRENTSTATE.keyDowns[keyCode]) {
+					result = keyCode;
+				}
+
+				return result;
+
+			};
+
+			var isDirectionalPushed = function() {
+				var result = 0;
+
+				if (isKeyDown(KEY.VK_UP)) {
+					return KEY.VK_UP;
+				}
+
+				if (isKeyDown(KEY.VK_DOWN)) {
+					return KEY.VK_DOWN;
+				}
+
+				if (isKeyDown(KEY.VK_LEFT)) {
+					return KEY.VK_LEFT;
+				}
+
+				if (isKeyDown(KEY.VK_RIGHT)) {
+					return KEY.VK_RIGHT;
+				}
+
+				return result;
+			};
+
+			var getKeyDowns = function() {
+				var result = [];
+
+				$.each(CURRENTSTATE.keyDowns, function(index, value) {
+					if (value == true) {
+						result.push(index);
+					};
+				});
+
+				return result;
+			};
+
+			// up 38
+			// down 40
+			// left 37
+			// right 39
+			// a 65
+			// enter 13
+
+			var mapLoop = function() {
+
+				// Make sure that keys do not repeat too fast
+				if (getKeyDowns().length > 0) {
+					var currentTime = $.now();
+					if (currentTime - CURRENTSTATE.lastKeyDownTime < CURRENTSTATE.keyDownMinInterval) {
+						return;
+					} else {
+						CURRENTSTATE.lastKeyDownTime = currentTime;
+					}
+				}
+
+				var directional = isDirectionalPushed();
+
+				if (directional != 0) {
+					var targetX = CURRENTSTATE.characters[0].x;
+					var targetY = CURRENTSTATE.characters[0].y;
+
+					if (directional == KEY.VK_UP) {
+						targetY++;
+					}
+					if (directional == KEY.VK_DOWN) {
+						targetY--;
+					}
+					if (directional == KEY.VK_LEFT) {
+						targetX--;
+					}
+					if (directional == KEY.VK_RIGHT) {
+						targetX++;
+					}
+
+					// Check if player can move to target tile
+					if (true) {
+						CURRENTSTATE.characters[0].x = targetX;
+						CURRENTSTATE.characters[0].y = targetY;
+					}
+				}
+
+				$('.v_debugText').val('x=' + CURRENTSTATE.characters[0].x + ' y=' + CURRENTSTATE.characters[0].y);
+
+			};
+
+			var mainLoop = function() {
+
+				switch(CURRENTSTATE.mainLoopState) {
+					case MAINLOOPSTATE.MAP : {
+						//$('.v_debugText').val('directional=' + JSON.stringify(getKeyDowns(), null, 4));
+
+						mapLoop();
+
+						break;
+					}
+
+					case MAINLOOPSTATE.DISCUSSION : {
+
+						break;
+					}
+
+				};
+			};
+
+			var KEY = {
+				VK_CANCEL : 3,
+				VK_HELP : 6,
+				VK_BACK_SPACE : 8,
+				VK_TAB : 9,
+				VK_CLEAR : 12,
+				VK_RETURN : 13,
+				VK_ENTER : 14,
+				VK_SHIFT : 16,
+				VK_CONTROL : 17,
+				VK_ALT : 18,
+				VK_PAUSE : 19,
+				VK_CAPS_LOCK : 20,
+				VK_ESCAPE : 27,
+				VK_SPACE : 32,
+				VK_PAGE_UP : 33,
+				VK_PAGE_DOWN : 34,
+				VK_END : 35,
+				VK_HOME : 36,
+				VK_LEFT : 37,
+				VK_UP : 38,
+				VK_RIGHT : 39,
+				VK_DOWN : 40,
+				VK_PRINTSCREEN : 44,
+				VK_INSERT : 45,
+				VK_DELETE : 46,
+				VK_0 : 48,
+				VK_1 : 49,
+				VK_2 : 50,
+				VK_3 : 51,
+				VK_4 : 52,
+				VK_5 : 53,
+				VK_6 : 54,
+				VK_7 : 55,
+				VK_8 : 56,
+				VK_9 : 57,
+				VK_SEMICOLON : 59,
+				VK_EQUALS : 61,
+				VK_A : 65,
+				VK_B : 66,
+				VK_C : 67,
+				VK_D : 68,
+				VK_E : 69,
+				VK_F : 70,
+				VK_G : 71,
+				VK_H : 72,
+				VK_I : 73,
+				VK_J : 74,
+				VK_K : 75,
+				VK_L : 76,
+				VK_M : 77,
+				VK_N : 78,
+				VK_O : 79,
+				VK_P : 80,
+				VK_Q : 81,
+				VK_R : 82,
+				VK_S : 83,
+				VK_T : 84,
+				VK_U : 85,
+				VK_V : 86,
+				VK_W : 87,
+				VK_X : 88,
+				VK_Y : 89,
+				VK_Z : 90,
+				VK_CONTEXT_MENU : 93,
+				VK_NUMPAD0 : 96,
+				VK_NUMPAD1 : 97,
+				VK_NUMPAD2 : 98,
+				VK_NUMPAD3 : 99,
+				VK_NUMPAD4 : 100,
+				VK_NUMPAD5 : 101,
+				VK_NUMPAD6 : 102,
+				VK_NUMPAD7 : 103,
+				VK_NUMPAD8 : 104,
+				VK_NUMPAD9 : 105,
+				VK_MULTIPLY : 106,
+				VK_ADD : 107,
+				VK_SEPARATOR : 108,
+				VK_SUBTRACT : 109,
+				VK_DECIMAL : 110,
+				VK_DIVIDE : 111,
+				VK_F1 : 112,
+				VK_F2 : 113,
+				VK_F3 : 114,
+				VK_F4 : 115,
+				VK_F5 : 116,
+				VK_F6 : 117,
+				VK_F7 : 118,
+				VK_F8 : 119,
+				VK_F9 : 120,
+				VK_F10 : 121,
+				VK_F11 : 122,
+				VK_F12 : 123,
+				VK_F13 : 124,
+				VK_F14 : 125,
+				VK_F15 : 126,
+				VK_F16 : 127,
+				VK_F17 : 128,
+				VK_F18 : 129,
+				VK_F19 : 130,
+				VK_F20 : 131,
+				VK_F21 : 132,
+				VK_F22 : 133,
+				VK_F23 : 134,
+				VK_F24 : 135,
+				VK_NUM_LOCK : 144,
+				VK_SCROLL_LOCK : 145,
+				VK_COMMA : 188,
+				VK_PERIOD : 190,
+				VK_SLASH : 191,
+				VK_BACK_QUOTE : 192,
+				VK_OPEN_BRACKET : 219,
+				VK_BACK_SLASH : 220,
+				VK_CLOSE_BRACKET : 221,
+				VK_QUOTE : 222,
+				VK_META : 224
+			};
+
+		</script>
+
+	</body>
+</html>

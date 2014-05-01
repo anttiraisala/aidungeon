@@ -1,0 +1,16 @@
+// from:
+// https://github.com/straker/galaxian-canvas-game/blob/master/part1/space_shooter_part_one.js
+// http://blog.sklambert.com/html5-canvas-game-panning-a-background/
+
+Tilesets:
+http://vxresource.wordpress.com/2011/05/24/new-amazing-tilesets/
+http://crankeye.com/resources/RPG%20Maker%20VX/
+http://vxresource.wordpress.com/2011/05/24/new-amazing-tilesets/
+http://vxresource.wordpress.com/
+
+
+Impun pelit:
+https://dl.dropboxusercontent.com/u/42541490/pelit/wobblerally/autopelipohja3.html
+https://dl.dropboxusercontent.com/u/42541490/pelit/kuulaskeutuminen2.html
+
+

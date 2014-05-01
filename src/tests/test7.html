@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="no-js">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Test7</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<!-- Add your site or application content here -->
+		<p>
+			TEST7
+		</p>
+
+		<!-- <img src = "../imgs/tileSets/ultima_v_5_warriors_of_destiny_tileset.PNG" /> -->
+		<div id="jQueryVersion"></div>
+		<div id="fpsCounter"></div>
+
+		<canvas id="canvasMap" width="800px" height="600px" style="border: solid 1px;"></canvas>
+
+		<script src="../js/jquery-1.11.0.min.js"></script>
+		<script src="../js/graphics.js"></script>
+
+		<script type="text/javascript">
+			/**
+			 * requestAnim shim layer by Paul Irish
+			 * Finds the first API that works to optimize the animation loop,
+			 * otherwise defaults to setTimeout().
+			 */
+			window.requestAnimFrame = (function() {
+				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+				function(/* function */callback, /* DOMElement */element) {
+					window.setTimeout(callback, 1000 / 60);
+				};
+			})();
+
+			/**
+			 * Initialize the Game and starts it.
+			 */
+			var game = new Game();
+
+			function init() {
+				if (game.init())
+					game.start();
+			}
+
+			/**
+			 * Creates the Game object which will hold all objects and data for
+			 * the game.
+			 */
+			function Game() {
+				this.init = function() {
+
+					return true;
+				};
+
+				// Start the animation loop
+				this.start = function() {
+					animate();
+				};
+			}
+
+			function animate() {
+				requestAnimFrame(animate);
+				//game.background.draw();
+
+				// Finally update fpsCounter
+				var d = new Date();
+				var currentTime = d.getTime();
+				global.fpsCounter++;
+				if (currentTime - global.lastTime >= 1000) {
+					global.lastTime = currentTime;
+
+					var hours = d.getHours();
+					var minutes = d.getMinutes();
+					var seconds = d.getSeconds();
+
+					$("#fpsCounter:first").text(global.fpsCounter + "fps : " + currentTime + " : " + (hours < 10 ? "0" : "") + hours + "." + (minutes < 10 ? "0" : "") + minutes + "." + (seconds < 10 ? "0" : "") + seconds);
+					global.fpsCounter = 0;
+				}
+			}
+
+			global = function() {
+				return {
+					lastTime : 0,
+					fpsCounter : 0
+				};
+			}();
+		</script>
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				init();
+			});
+		</script>
+
+		<script>
+			$(document).ready(function() {
+				$("#jQueryVersion").text("jQuery " + $.fn.jquery);
+
+				canvasCtx = $("#canvasMap")[0].getContext('2d');
+				//alert("canvasCtx:" + canvasCtx);
+
+				img1Load();
+			});
+
+			var img1Load = function() {
+				this.image1 = new Image();
+
+				var src = "../imgs/tileSets/2D Circle Graphic/TEST7B.bmp";
+				this.image1.onload = function() {
+					//alert("onload:" + src);
+					//alert("this.src:" + this.src);
+
+					gImgLandscape = this;
+
+					img2Load();
+
+				};
+				this.image1.src = src;
+			};
+
+			var img2Load = function() {
+				this.image1 = new Image();
+
+				var src = "../imgs/tileSets/TileB.png";
+				this.image1.onload = function() {
+					//alert("onload:" + src);
+					//alert("this.src:" + this.src);
+
+					gImgDecals = this;
+
+					img3Load();
+
+				};
+				this.image1.src = src;
+			};
+
+			var img3Load = function() {
+				this.image1 = new Image();
+
+				var src = "../imgs/tileSets/ultima_v_5_warriors_of_destiny_tileset.PNG";
+				this.image1.onload = function() {
+					//alert("onload:" + src);
+					//alert("this.src:" + this.src);
+
+					gImgUltima5Tiles = this;
+
+					phase2();
+
+				};
+				this.image1.src = src;
+			};
+
+			var phase2 = function() {
+
+				canvasCtx.drawImage(gImgLandscape, 0, 0);
+
+				gImageTower2 = new imageCell(gImgDecals, 256, 384, 32, 63, 16, 63);
+				drawImageCellOntoCanvas(canvasCtx, gImageTower2, 400, 300);
+
+				gImageCactus = new imageCell(gImgDecals, 195, 416, 29, 32, 13, 31);
+				drawImageCellOntoCanvas(canvasCtx, gImageCactus, 400, 246);
+
+				gImageBrokenTower = new imageCell(gImgDecals, 288, 385, 32, 63, 16, 63);
+				drawImageCellOntoCanvas(canvasCtx, gImageBrokenTower, 450, 200);
+
+				gImageU5Hero = new imageCell(gImgUltima5Tiles, 388, 320, 26, 32, 13, 32);
+				drawImageCellOntoCanvas(canvasCtx, gImageU5Hero, 100, 50);
+				drawImageCellOntoCanvas(canvasCtx, gImageU5Hero, 400, 340);
+
+				gAnimation1 = new imageAnimation();
+				gAnimation1.addFrame(gImageTower2, 500);
+				gAnimation1.addFrame(gImageBrokenTower, 500);
+				gAnimation1.addFrame(gImageU5Hero, 500);
+				gAnimation1.addFrame(gImageCactus, 500);
+				//
+				gAnimation1.drawAnimation(canvasCtx, 70, 360);
+
+				//alert(gAnimation.sourceFrames[0]);
+
+				alert("done");
+			};
+
+			drawImageCellOntoCanvas = function(targetCanvasContext, sourceImageCell, targetX, targetY) {
+				targetCanvasContext.drawImage(sourceImageCell.rawImageSource, sourceImageCell.startX, sourceImageCell.startY, sourceImageCell.width, sourceImageCell.height, targetX - sourceImageCell.hotSpotX, targetY - sourceImageCell.hotSpotY, sourceImageCell.width, sourceImageCell.height);
+			};
+
+			imageAnimation = function() {
+				//alert("imageAnimation()");
+
+				this.sourceImageCells = [];
+				this.frameDelays = [];
+
+				this.currentFrameIndex = 0;
+
+				this.addFrame = function(sourceImageCell, frameDelay) {
+					//alert("addFrame()");
+					this.sourceImageCells.push(sourceImageCell);
+					this.frameDelays.push(frameDelay);
+				};
+
+				this.alz = function(msg) {
+					alert(msg);
+				};
+
+				this.drawAnimation = function(targetCanvasContext, targetX, targetY) {
+					//alert("drawAnimation()");
+
+					var currentFrame = this.sourceImageCells[this.currentFrameIndex];
+					var currentDelay = this.frameDelays[this.currentFrameIndex];
+
+					//alert("currentFrame=" + currentFrame.rawImageSource.src + ":currentDelay=" + currentDelay);
+
+					drawImageCellOntoCanvas(targetCanvasContext, currentFrame, targetX, targetY);
+
+					//alert(this.sourceImageCells.length);
+					//alert(this.currentFrameIndex);
+					this.currentFrameIndex++;
+					if (this.currentFrameIndex >= this.sourceImageCells.length) {
+						this.currentFrameIndex = 0;
+					}
+					//alert(this.currentFrameIndex);
+
+					//alert("currentFrame=" + currentFrame.rawImageSource.src + ":currentDelay=" + currentDelay);
+
+					//window.setTimeout(this.drawAnimation(targetCanvasContext, targetX, targetY), 500);
+					//window.setTimeout(function(){gAnimation1.alz("kukkuu");}, 1500);
+					window.setTimeout(function() {
+						gAnimation1.drawAnimation(targetCanvasContext, targetX, targetY);
+					}, currentDelay);
+
+				};
+			};
+
+		</script>
+
+		<script>
+			var allImagesAreLoaded = function() {
+				alert("allImagesAreLoaded");
+
+			};
+		</script>
+
+	</body>
+</html>
