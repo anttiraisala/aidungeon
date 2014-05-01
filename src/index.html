@@ -3,14 +3,15 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>Test12</title>
+		<title>Test14</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
+	<!-- <body style="position: fixed; overflow-y: scroll; width: 100%;"	> -->
 	<body>
 		<!-- Add your site or application content here -->
 		<p>
-			TEST12
+			TEST14
 		</p>
 
 		<div id="jQueryVersion"></div>
@@ -87,10 +88,10 @@
 						}
 
 						var mapData = worldMap.tiles[mapDataX][mapDataY];
-						
+
 						if (global.imageCellLoops[mapData] != undefined) {
 							var cellLoop = global.imageCellLoops[mapData];
-							
+
 							//cellLoop.advanceTime();
 							drawImageCellOntoCanvas(canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, CURRENTSTATE.mapCanvasZoom);
 
@@ -107,13 +108,13 @@
 					var ax = actor.x;
 					var ay = actor.y;
 					var cLoop = global.imageCellLoops[actor.cellLoop];
-					
+
 					var x = ax - bottomLeftCornerX;
 					var y = ay - bottomLeftCornerY;
-					
-					if(x>=0 && x<horizontalTileCount && y>=0 && y<verticalTileCount){
+
+					if (x >= 0 && x < horizontalTileCount && y >= 0 && y < verticalTileCount) {
 						drawImageCellOntoCanvas(canvasCtx, cLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, CURRENTSTATE.mapCanvasZoom);
-					}					
+					}
 				});
 
 				/*
@@ -159,6 +160,7 @@
 
 				window.setInterval(mainLoop, 0);
 				window.setInterval(drawMap, 0);
+				// TODO: map could be updated only when necessary, i.e. when cellLoop has advanced or actor has moved etc.
 			};
 
 			var initializeGraphics = function() {
@@ -264,7 +266,7 @@
 				orcLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 0, 224, 16, 16, 0, 0), 750);
 				orcLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 16, 224, 16, 16, 0, 0), 350);
 				orcLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 32, 224, 16, 16, 0, 0), 350);
-				orcLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 48, 224, 16, 16, 0, 0), 750);
+				orcLoop.addFrame(new imageCell(rawImageRepository.getRawImages()[0], 48, 224, 16, 16, 0, 0), 1250);
 				//
 				global.imageCellLoops[302] = orcLoop;
 
@@ -378,17 +380,23 @@
 
 			var worldMap = {
 				tiles : {},
-				width : 10,
-				height : 10
+				width : 30,
+				height : 30
 			};
+			
+			var tileProperties = [];
+			tileProperties[1] = { d:[0, 0, 0]};
+			//tileProperties[10] = {};
+			tileProperties[11] = { d:[0, 0, 0]};
+			tileProperties[12] = { d:[0, 0, 0]};
 
 		</script>
 
 		<script type="text/javascript">
 			var mapData = [];
-			for (var x = 0; x < 10; x++) {
-				mapData[x] = new Array(10);
-				for (var y = 0; y < 10; y++) {
+			for (var x = 0; x < worldMap.width; x++) {
+				mapData[x] = new Array(worldMap.height);
+				for (var y = 0; y < worldMap.height; y++) {
 					mapData[x][y] = 1;
 				}
 			}
@@ -529,8 +537,8 @@
 
 				CURRENTSTATE.actors[0] = {};
 				CURRENTSTATE.actors[0].name = "Hero";
-				CURRENTSTATE.actors[0].x = 5;
-				CURRENTSTATE.actors[0].y = 5;
+				CURRENTSTATE.actors[0].x = 9;
+				CURRENTSTATE.actors[0].y = 7;
 				CURRENTSTATE.actors[0].cellLoop = 301;
 
 				CURRENTSTATE.actors[1] = {};
@@ -629,9 +637,19 @@
 					if (directional == KEY.VK_RIGHT) {
 						targetX++;
 					}
+					
+					var targetTileIndex = worldMap.tiles[targetX][targetY];					
+					targetTileProperties = tileProperties[targetTileIndex];
+					console.log(targetTileIndex);
+					cl(" ", targetTileProperties);
+					
+					var allowed = true;
+					if(targetTileProperties == undefined){
+						allowed = false;
+					}
 
 					// Check if player can move to target tile
-					if (true) {
+					if (allowed) {
 						CURRENTSTATE.actors[0].x = targetX;
 						CURRENTSTATE.actors[0].y = targetY;
 					}
