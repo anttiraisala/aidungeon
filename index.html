@@ -6,6 +6,10 @@
 		<title>Test14</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/jquery-1.11.0.min.js"></script>
+		<script src="js/graphics.js"></script>
+		<script src="js/map.js"></script>
+		<script src="js/actor.js"></script>
 	</head>
 	<!-- <body style="position: fixed; overflow-y: scroll; width: 100%;"	> -->
 	<body>
@@ -31,8 +35,7 @@
 			Could not create Canvas!
 		</canvas>
 
-		<script src="js/jquery-1.11.0.min.js"></script>
-		<script src="js/graphics.js"></script>
+		
 
 		<!-- Graphical stuff begins -->
 
@@ -67,27 +70,27 @@
 						var mapDataX = bottomLeftCornerX + x;
 						var mapDataY = bottomLeftCornerY + y;
 
-						if (mapDataX < 0 || mapDataX >= worldMap.width || mapDataY < 0 || mapDataY >= worldMap.height) {
+						if (mapDataX < 0 || mapDataX >= global.map.width || mapDataY < 0 || mapDataY >= global.map.height) {
 
 							if (false) {
 								while (mapDataX < 0) {
-									mapDataX += worldMap.width;
+									mapDataX += global.map.width;
 								}
 								while (mapDataY < 0) {
-									mapDataY += worldMap.height;
+									mapDataY += global.map.height;
 								}
-								while (mapDataX >= worldMap.width) {
-									mapDataX -= worldMap.width;
+								while (mapDataX >= global.map.width) {
+									mapDataX -= global.map.width;
 								}
-								while (mapDataY >= worldMap.height) {
-									mapDataY -= worldMap.height;
+								while (mapDataY >= global.map.height) {
+									mapDataY -= global.map.height;
 								}
 							} else {
 								continue;
 							}
 						}
 
-						var mapData = worldMap.tiles[mapDataX][mapDataY];
+						var mapData = global.map.tiles[mapDataX][mapDataY];
 
 						if (global.imageCellLoops[mapData] != undefined) {
 							var cellLoop = global.imageCellLoops[mapData];
@@ -370,19 +373,6 @@
 				lastKeyDownTime : 0,
 				keyDownMinInterval : 100
 			};
-
-			var actor = {
-				x : 0,
-				y : 0,
-				name : "",
-				cellLoop : 0
-			};
-
-			var worldMap = {
-				tiles : {},
-				width : 30,
-				height : 30
-			};
 			
 			var tileProperties = [];
 			tileProperties[1] = { d:[0, 0, 0]};
@@ -390,93 +380,6 @@
 			tileProperties[11] = { d:[0, 0, 0]};
 			tileProperties[12] = { d:[0, 0, 0]};
 
-		</script>
-
-		<script type="text/javascript">
-			var mapData = [];
-			for (var x = 0; x < worldMap.width; x++) {
-				mapData[x] = new Array(worldMap.height);
-				for (var y = 0; y < worldMap.height; y++) {
-					mapData[x][y] = 1;
-				}
-			}
-
-			// House
-			mapData[6][3] = 10;
-			mapData[6][2] = 10;
-			mapData[6][1] = 11;
-			// Secret Door !
-			mapData[6][0] = 10;
-			mapData[7][0] = 10;
-			mapData[8][0] = 10;
-			mapData[9][0] = 10;
-			mapData[9][1] = 10;
-			mapData[9][2] = 10;
-			mapData[9][3] = 10;
-			mapData[8][3] = 10;
-			//
-			// Floor
-			mapData[7][3] = 12;
-			mapData[7][2] = 12;
-			mapData[7][1] = 12;
-			mapData[8][2] = 12;
-			mapData[8][1] = 12;
-
-			// Deeper water
-			mapData[0][8] = 20;
-			mapData[0][7] = 20;
-			mapData[0][6] = 20;
-			mapData[0][5] = 20;
-			mapData[1][8] = 20;
-			mapData[1][7] = 20;
-			mapData[1][6] = 20;
-			mapData[1][5] = 20;
-			mapData[1][4] = 20;
-			mapData[2][7] = 20;
-			mapData[2][6] = 20;
-
-			// Shallow water
-			mapData[2][5] = 21;
-			mapData[2][4] = 21;
-			mapData[3][5] = 21;
-			mapData[3][4] = 21;
-			mapData[3][3] = 21;
-
-			// Dense woods
-			mapData[7][8] = 2;
-
-			// Smaller woods
-			mapData[6][7] = 3;
-			mapData[7][7] = 3;
-
-			// Low Mountains
-			mapData[1][3] = 60;
-			mapData[0][2] = 60;
-			mapData[3][2] = 60;
-			mapData[0][1] = 60;
-			mapData[3][1] = 60;
-			mapData[1][0] = 60;
-			mapData[2][0] = 60;
-
-			// Medium Mountains
-			mapData[1][2] = 61;
-			mapData[2][2] = 61;
-			mapData[2][1] = 61;
-
-			// High Mountains
-			mapData[1][1] = 62;
-
-			// Marsh
-			mapData[2][3] = 59;
-
-			// Strange Worm
-			mapData[0][4] = 200;
-
-			//console.log('mapData=' + JSON.stringify(mapData, null, 4));
-
-			worldMap.tiles = mapData;
-
-			//console.log('worldMap.tiles=' + JSON.stringify(worldMap.tiles, null, 4));
 		</script>
 
 		<script type="text/javascript">
@@ -535,24 +438,12 @@
 					$('.v_debugText6').val("touchmove / " + new Date().getTime());
 				});
 
-				CURRENTSTATE.actors[0] = {};
-				CURRENTSTATE.actors[0].name = "Hero";
-				CURRENTSTATE.actors[0].x = 9;
-				CURRENTSTATE.actors[0].y = 7;
-				CURRENTSTATE.actors[0].cellLoop = 301;
+				CURRENTSTATE.actors[0] = new Actor(9, 7, "Hero", 301);
+				CURRENTSTATE.actors[1] = new Actor(4, 5, "orc", 302);
+				CURRENTSTATE.actors[2] = new Actor(5, 3, "headless", 303);
 
-				CURRENTSTATE.actors[1] = {};
-				CURRENTSTATE.actors[1].name = "orc";
-				CURRENTSTATE.actors[1].x = 4;
-				CURRENTSTATE.actors[1].y = 5;
-				CURRENTSTATE.actors[1].cellLoop = 302;
-
-				CURRENTSTATE.actors[2] = {};
-				CURRENTSTATE.actors[2].name = "headless";
-				CURRENTSTATE.actors[2].x = 5;
-				CURRENTSTATE.actors[2].y = 3;
-				CURRENTSTATE.actors[2].cellLoop = 303;
-
+        global.map = new Map();
+        global.map.init();
 			};
 
 			var isKeyDown = function(keyCode) {
@@ -638,7 +529,7 @@
 						targetX++;
 					}
 					
-					var targetTileIndex = worldMap.tiles[targetX][targetY];					
+					var targetTileIndex = global.map.tiles[targetX][targetY];					
 					targetTileProperties = tileProperties[targetTileIndex];
 					console.log(targetTileIndex);
 					cl(" ", targetTileProperties);
