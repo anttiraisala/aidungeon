@@ -1,5 +1,7 @@
 var Input = function() {
   this.keyDowns = [];
+  this.lastKeyDownTime = 0;
+  this.keyDownMinInterval = 100;
 
   this.isKeyDown = function(keyCode) {
     result = 0;

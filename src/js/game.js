@@ -10,9 +10,7 @@ var Game = function() {
     mapTileSize : 16,
     mapCanvasZoom : 3,
     mainLoopState : MAINLOOPSTATE.MAP,
-    actors : [],
-    lastKeyDownTime : 0,
-    keyDownMinInterval : 100
+    actors : []
   };
   this.tileProperties = [];
   
@@ -108,10 +106,10 @@ var Game = function() {
     // Make sure that keys do not repeat too fast
     if (this.input.getKeyDowns().length > 0) {
       var currentTime = $.now();
-      if (currentTime - this.currentState.lastKeyDownTime < this.currentState.keyDownMinInterval) {
+      if (currentTime - this.input.lastKeyDownTime < this.input.keyDownMinInterval) {
         return;
       } else {
-        this.currentState.lastKeyDownTime = currentTime;
+        this.input.lastKeyDownTime = currentTime;
       }
     }
 

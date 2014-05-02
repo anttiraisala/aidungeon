@@ -250,8 +250,3 @@ var Gui = function() {
   };
   
 };
-
-
-
-
-
