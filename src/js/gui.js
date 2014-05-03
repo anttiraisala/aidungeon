@@ -11,6 +11,9 @@ var Gui = function() {
   this.mapCanvasHeight = 600;
   this.mapTileSize = 16;
   this.mapCanvasZoom = 3;
+  this.fpsCounter = 0;
+  this.lastAnimationFrameTime = 0;
+  this.canvasCtx;
 
   /**
    * requestAnim shim layer by Paul Irish
@@ -26,6 +29,7 @@ var Gui = function() {
 
   this.init = function(map, actors, callback) {
     this.rawImageRepository.addSourcePath("imgs/tileSets/Ultima_5_-_Tiles.png");
+    this.canvasCtx = $("#v_canvasMap")[0].getContext('2d');
 
     var ctx = this;
     this.rawImageRepository.loadRawImages(function() {
@@ -46,11 +50,8 @@ var Gui = function() {
     var verticalTileCount = Math.ceil(this.mapCanvasHeight / tileSize);
     // console.log('ht=' + horizontalTileCount + ' vt=' + verticalTileCount);
 
-    // TODO : make canvasCtx as global
-
-    var canvasCtx = $(".v_canvasMap:first")[0].getContext('2d');
-    canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
-    canvasCtx.fillStyle = "#FF0000";
+    this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
+    this.canvasCtx.fillStyle = "#FF0000";
 
     var fillStyles = [];
     fillStyles[1] = "#000000";
@@ -60,6 +61,7 @@ var Gui = function() {
     fillStyles[20] = "#0000FF";
     fillStyles[21] = "#0000A0";
 
+    //Center map to player
     var bottomLeftCornerX = actors[0].x - Math.ceil(horizontalTileCount / 2);
     var bottomLeftCornerY = actors[0].y - Math.ceil(verticalTileCount / 2);
 
@@ -77,13 +79,11 @@ var Gui = function() {
 
         if (this.imageCellLoops[mapData] != undefined) {
           var cellLoop = this.imageCellLoops[mapData];
-
-          //cellLoop.advanceTime();
-          this.drawImageCellOntoCanvas(canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, this.mapCanvasZoom);
+          this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, this.mapCanvasZoom);
 
         } else {
-          canvasCtx.fillStyle = fillStyles[mapData];
-          canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
+          this.canvasCtx.fillStyle = fillStyles[mapData];
+          this.canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
         }
 
       }
@@ -100,7 +100,7 @@ var Gui = function() {
       var y = ay - bottomLeftCornerY;
 
       if (x >= 0 && x < horizontalTileCount && y >= 0 && y < verticalTileCount) {
-        ctx.drawImageCellOntoCanvas(canvasCtx, cLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, ctx.mapCanvasZoom);
+        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, ctx.mapCanvasZoom);
       }
     });
   };
@@ -120,14 +120,14 @@ var Gui = function() {
     this.lastAnimateStartTime = currentTime;
 
     this.fpsCounter++;
-    if (currentTime - this.lastTime >= 1000) {
-      this.lastTime = currentTime;
+    if (currentTime - this.lastAnimationFrameTime >= 1000) {
+      this.lastAnimationFrameTime = currentTime;
 
       var hours = d.getHours();
       var minutes = d.getMinutes();
       var seconds = d.getSeconds();
 
-      $("#fpsCounter:first").text(this.fpsCounter + "fps : " + currentTime + " : " + (hours < 10 ? "0" : "") + hours + "." + (minutes < 10 ? "0" : "") + minutes + "." + (seconds < 10 ? "0" : "") + seconds + " :: " + this.dAnimateStartTime + "ms");
+      $("#fpsCounter").text(this.fpsCounter + "fps : " + currentTime + " : " + (hours < 10 ? "0" : "") + hours + "." + (minutes < 10 ? "0" : "") + minutes + "." + (seconds < 10 ? "0" : "") + seconds + " :: " + this.dAnimateStartTime + "ms");
       this.fpsCounter = 0;
     }
 

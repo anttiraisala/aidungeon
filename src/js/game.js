@@ -1,6 +1,4 @@
 var Game = function() {
-  this.lastTime = 0;
-  this.fpsCounter = 0;
   this.map = null;
   this.gui = new Gui();
   this.input = new Input();
@@ -13,45 +11,45 @@ var Game = function() {
   
   this.init = function() {
     var ctx = this;
-    $(".v_canvasMap:first").on("keydown", "", function(event) {
+    $("#v_canvasMap").on("keydown", "", function(event) {
       //event.preventDefault();
       //console.log("keydown" + event.which);
       ctx.input.keyDowns[event.which] = true;
     });
 
-    $(".v_canvasMap:first").on("keyup", "", function(event) {
+    $("#v_canvasMap").on("keyup", "", function(event) {
       //event.preventDefault();
       //console.log("keyup" + event.which);
 
       ctx.input.keyDowns[event.which] = false;
     });
 
-    $(".v_canvasMap:first").on("mousedown", function(event) {
+    $("#v_canvasMap").on("mousedown", function(event) {
       //event.preventDefault();
       $('.v_debugText2').val("mousedown / " + new Date().getTime());
     });
 
-    $(".v_canvasMap:first").on("mouseup", function(event) {
+    $("#v_canvasMap").on("mouseup", function(event) {
       //event.preventDefault();
       $('.v_debugText4').val("mouseup / " + new Date().getTime());
     });
 
-    $(".v_canvasMap:first").on("mousemove", function(event) {
+    $("#v_canvasMap").on("mousemove", function(event) {
       //event.preventDefault();
       $('.v_debugText3').val("mousemove / " + new Date().getTime());
     });
 
-    $(".v_canvasMap:first").on("touchstart", function(event) {
+    $("#v_canvasMap").on("touchstart", function(event) {
       //event.preventDefault();
       $('.v_debugText5').val("touchstart / " + new Date().getTime());
     });
 
-    $(".v_canvasMap:first").on("touchend", function(event) {
+    $("#v_canvasMap").on("touchend", function(event) {
       //event.preventDefault();
       $('.v_debugText7').val("touchend / " + new Date().getTime());
     });
 
-    $(".v_canvasMap:first").on("touchmove", function(event) {
+    $("#v_canvasMap").on("touchmove", function(event) {
       //event.preventDefault();
       $('.v_debugText6').val("touchmove / " + new Date().getTime());
     });
