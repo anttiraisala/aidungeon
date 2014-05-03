@@ -5,10 +5,6 @@ var Game = function() {
   this.gui = new Gui();
   this.input = new Input();
   this.currentState = {
-    mapCanvasWidth : 800,
-    mapCanvasHeight : 600,
-    mapTileSize : 16,
-    mapCanvasZoom : 3,
     mainLoopState : MAINLOOPSTATE.MAP,
     actors : []
   };
@@ -72,7 +68,7 @@ var Game = function() {
     this.tileProperties[12] = { d:[0, 0, 0]};
     
     var ctx = this;
-    this.gui.init(this, function() {
+    this.gui.init(this.map, this.currentState.actors, function() {
       ctx.start();
     });
   };
