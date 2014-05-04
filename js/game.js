@@ -1,27 +1,21 @@
 var Game = function() {
-  this.map = null;
+  this.map = new Map();
   this.gui = new Gui();
   this.input = new Input();
   this.currentState = {
     mainLoopState : MAINLOOPSTATE.MAP,
     actors : []
   };
-  this.tileProperties = [];
   
   
   this.init = function() {
     var ctx = this;
     $("#v_canvasMap").on("keydown", "", function(event) {
-      //event.preventDefault();
-      //console.log("keydown" + event.which);
-      ctx.input.keyDowns[event.which] = true;
+      ctx.input.keyPressed(event.which);
     });
 
     $("#v_canvasMap").on("keyup", "", function(event) {
-      //event.preventDefault();
-      //console.log("keyup" + event.which);
-
-      ctx.input.keyDowns[event.which] = false;
+      ctx.input.keyReleased(event.which);
     });
 
     $("#v_canvasMap").on("mousedown", function(event) {
@@ -54,16 +48,11 @@ var Game = function() {
       $('.v_debugText6').val("touchmove / " + new Date().getTime());
     });
 
-    this.currentState.actors[0] = new Actor(9, 7, "Hero", 301);
-    this.currentState.actors[1] = new Actor(4, 5, "orc", 302);
-    this.currentState.actors[2] = new Actor(5, 3, "headless", 303);
-
-    this.map = new Map();
-    this.map.init();
+    this.currentState.actors.push(new Actor(9, 7, "Hero", TILE_TYPE.AVATAR, true));
+    this.currentState.actors.push(new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC, false));
+    this.currentState.actors.push(new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS, false));
     
-    this.tileProperties[1] = { d:[0, 0, 0]};
-    this.tileProperties[11] = { d:[0, 0, 0]};
-    this.tileProperties[12] = { d:[0, 0, 0]};
+    this.map.init();
     
     var ctx = this;
     this.gui.init(this.map, this.currentState.actors, function() {
@@ -83,11 +72,9 @@ var Game = function() {
 
     switch(this.currentState.mainLoopState) {
       case MAINLOOPSTATE.MAP : {
-        //$('.v_debugText').val('directional=' + JSON.stringify(getKeyDowns(), null, 4));
         this.mapLoop();
         break;
       }
-
       case MAINLOOPSTATE.DISCUSSION : {
         break;
       }
@@ -96,53 +83,50 @@ var Game = function() {
   };
   
   this.mapLoop = function() {
-
-    // Make sure that keys do not repeat too fast
-    if (this.input.getKeyDowns().length > 0) {
-      var currentTime = $.now();
-      if (currentTime - this.input.lastKeyDownTime < this.input.keyDownMinInterval) {
-        return;
-      } else {
-        this.input.lastKeyDownTime = currentTime;
-      }
+  
+    //Execute loop only if player has some activity
+    if(this.input.isPlayerInputQueueEmpty()) {
+      return;
     }
 
-    var directional = this.input.isDirectionalPushed();
-
-    if (directional != 0) {
-      var targetX = this.currentState.actors[0].x;
-      var targetY = this.currentState.actors[0].y;
-
-      if (directional == KEY.VK_UP) {
-        targetY++;
-      }
-      if (directional == KEY.VK_DOWN) {
-        targetY--;
-      }
-      if (directional == KEY.VK_LEFT) {
-        targetX--;
-      }
-      if (directional == KEY.VK_RIGHT) {
-        targetX++;
-      }
-      
-      var targetTileIndex = this.map.tiles[targetX][targetY];          
-      targetTileProperties = this.tileProperties[targetTileIndex];
-      console.log(targetTileIndex);
-      
-      var allowed = true;
-      if(targetTileProperties == undefined){
-        allowed = false;
-      }
-
-      // Check if player can move to target tile
-      if (allowed) {
-        this.currentState.actors[0].x = targetX;
-        this.currentState.actors[0].y = targetY;
-      }
+    // Make sure that player do not push keys too fast
+    if(!this.input.isPlayerInputIntervalValid()) {
+      return;
     }
+    
+    var key = this.input.getNextKeyFromQueue();
+    var playerHasActivity = false;
 
-    $('.v_debugText').val('x=' + this.currentState.actors[0].x + ' y=' + this.currentState.actors[0].y);
-
+    //Move player if directional key
+    if (this.input.isDirectionalKey(key)) {
+      var direction = this.input.getDirectionalInputKeyDirection(key);
+      this.getPlayer().move(direction, this.map, this.currentState.actors);
+      playerHasActivity = true;
+    }
+    
+    //Execute monster AI if player has done some activity
+    if(playerHasActivity) {
+    var ctx = this;
+      this.currentState.actors.forEach(function(actor) {
+        if(!actor.isPlayer) {
+          actor.actorAI.executeTurn(ctx.map, ctx.currentState.actors);
+        }
+      });
+    }
+  };
+  
+  /**
+  * Returns player Actor instance.
+  *
+  * @return {Actor} player Actor instance
+  */
+  this.getPlayer = function() {
+    var player = null;
+    this.currentState.actors.forEach(function(actor) {
+      if(actor.isPlayer) {
+        player = actor;
+      }
+    });
+    return player;
   };
 };
