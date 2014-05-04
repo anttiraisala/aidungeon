@@ -30,6 +30,7 @@ var Gui = function() {
   this.init = function(map, actors, callback) {
     this.rawImageRepository.addSourcePath("imgs/tileSets/Ultima_5_-_Tiles.png");
     this.canvasCtx = $("#v_canvasMap")[0].getContext('2d');
+    $("#v_canvasMap").focus();
 
     var ctx = this;
     this.rawImageRepository.loadRawImages(function() {
