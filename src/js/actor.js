@@ -12,9 +12,10 @@ var Actor = function(x, y, name, tileType) {
   *
   * @param {string} direction DIRECTION constant value
   * @param {Map} map Map instance
+  * @param {Array} actors All actors in map
   * @return {boolean} true if movement was succesfull, else false
   */
-  this.move = function(direction, map) {
+  this.move = function(direction, map, actors) {
     var targetX = this.x;
     var targetY = this.y;
 
@@ -31,7 +32,7 @@ var Actor = function(x, y, name, tileType) {
       targetX++;
     }
     
-    // Check if player can move to target tile
+    // Check if player can move to target tile and that target is in map limits
     if(!map.tiles[targetX]) {
       return false;
     }
@@ -40,13 +41,22 @@ var Actor = function(x, y, name, tileType) {
     }
     
     var targetTile = map.tiles[targetX][targetY];
-    if (targetTile.isBlocking(this) === false) {
-      this.x = targetX;
-      this.y = targetY;
-      return true;
-    }
-    else {
+    if (targetTile.isBlocking(this)) {
       return false;
     }
+    
+    //Check that there is no another actor in target coordinates
+    var anotherActorFound = false;
+    actors.forEach(function(actor) {
+      if(actor.x === targetX && actor.y === targetY) {
+        anotherActorFound = true;
+      }
+    });
+    if(anotherActorFound) {
+      return false;
+    }
+    
+    this.x = targetX;
+    this.y = targetY;
   }
 };

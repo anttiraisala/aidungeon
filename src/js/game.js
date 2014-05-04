@@ -99,7 +99,7 @@ var Game = function() {
     if (this.input.isDirectionalKeyPushed()) {
       var key = this.input.getPushedDirectionalKey();
       var direction = this.input.getDirectionalInputKeyDirection(key);
-      this.getPlayer().move(direction, this.map);
+      this.getPlayer().move(direction, this.map, this.currentState.actors);
     }
   };
   
