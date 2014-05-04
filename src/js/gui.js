@@ -48,18 +48,9 @@ var Gui = function() {
     var tileSize = this.mapTileSize * this.mapCanvasZoom;
     var horizontalTileCount = Math.ceil(this.mapCanvasWidth / tileSize);
     var verticalTileCount = Math.ceil(this.mapCanvasHeight / tileSize);
-    // console.log('ht=' + horizontalTileCount + ' vt=' + verticalTileCount);
 
     this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
     this.canvasCtx.fillStyle = "#FF0000";
-
-    var fillStyles = [];
-    fillStyles[1] = "#000000";
-    fillStyles[2] = "#00AF00";
-    fillStyles[3] = "#20FF20";
-    fillStyles[10] = "#C0C0C0";
-    fillStyles[20] = "#0000FF";
-    fillStyles[21] = "#0000A0";
 
     //Center map to player
     var bottomLeftCornerX = actors[0].x - Math.ceil(horizontalTileCount / 2);
@@ -75,14 +66,14 @@ var Gui = function() {
           continue;
         }
 
-        var mapData = map.tiles[mapDataX][mapDataY];
+        var mapTile = map.tiles[mapDataX][mapDataY];
 
-        if (this.imageCellLoops[mapData] != undefined) {
-          var cellLoop = this.imageCellLoops[mapData];
+        if (this.imageCellLoops[mapTile.type] != undefined) {
+          var cellLoop = this.imageCellLoops[mapTile.type];
           this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, this.mapCanvasZoom);
 
         } else {
-          this.canvasCtx.fillStyle = fillStyles[mapData];
+          this.canvasCtx.fillStyle = "#FF0000"; //White
           this.canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
         }
 
@@ -94,7 +85,7 @@ var Gui = function() {
     actors.forEach(function(actor) {
       var ax = actor.x;
       var ay = actor.y;
-      var cLoop = ctx.imageCellLoops[actor.cellLoop];
+      var cLoop = ctx.imageCellLoops[actor.tileType];
 
       var x = ax - bottomLeftCornerX;
       var y = ay - bottomLeftCornerY;
@@ -145,77 +136,72 @@ var Gui = function() {
   };
 
   this.createImageCellLoops = function() {
-    //alert("createImageCellLoops");
-
     var imageCellLoop1 = new ImageCellLoop();
     imageCellLoop1.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 388, 320, 26, 32, 13, 32), 500);
     imageCellLoop1.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 420, 320, 24, 32, 10, 32), 250);
     imageCellLoop1.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 452, 320, 26, 32, 13, 32), 500);
     imageCellLoop1.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 486, 320, 24, 32, 11, 32), 250);
-    //
-    //global.imageCellLoops.push(imageCellLoop1);
-    //global.imageCellLoops.push(imageCellLoop1);
 
     var deepWaterLoop = new ImageCellLoop();
     deepWaterLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 16, 0, 16, 16, 0, 0), 500);
     deepWaterLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 32, 0, 16, 16, 0, 0), 500);
     //
-    this.imageCellLoops[20] = deepWaterLoop;
+    this.imageCellLoops[TILE_TYPE.DEEP_WATER] = deepWaterLoop;
 
     var shallowWaterLoop = new ImageCellLoop();
     shallowWaterLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 48, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[21] = shallowWaterLoop;
+    this.imageCellLoops[TILE_TYPE.SHALLOW_WATER] = shallowWaterLoop;
 
     var denseWoodsLoop = new ImageCellLoop();
     denseWoodsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 160, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[2] = denseWoodsLoop;
+    this.imageCellLoops[TILE_TYPE.DENSE_WOODS] = denseWoodsLoop;
 
     var lesserWoodsLoop = new ImageCellLoop();
     lesserWoodsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 144, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[3] = lesserWoodsLoop;
+    this.imageCellLoops[TILE_TYPE.LESSER_WOODS] = lesserWoodsLoop;
 
     var wallLoop = new ImageCellLoop();
     wallLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 240, 32, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[10] = wallLoop;
+    this.imageCellLoops[TILE_TYPE.WALL] = wallLoop;
 
     var secretWallLoop = new ImageCellLoop();
     secretWallLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 224, 32, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[11] = secretWallLoop;
+    this.imageCellLoops[TILE_TYPE.SECRET_WALL] = secretWallLoop;
 
     var plankFloorLoop = new ImageCellLoop();
     plankFloorLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 144, 32, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[12] = plankFloorLoop;
+    this.imageCellLoops[TILE_TYPE.PLANK_FLOOR] = plankFloorLoop;
 
     var grassLandsLoop = new ImageCellLoop();
     grassLandsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 82, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[1] = grassLandsLoop;
+    this.imageCellLoops[TILE_TYPE.GRASS_LANDS] = grassLandsLoop;
 
     var highMountainsLoop = new ImageCellLoop();
     highMountainsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 208, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[62] = highMountainsLoop;
+    this.imageCellLoops[TILE_TYPE.HIGH_MOUNTAINS] = highMountainsLoop;
 
     var medMountainsLoop = new ImageCellLoop();
     medMountainsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 192, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[61] = medMountainsLoop;
+    this.imageCellLoops[TILE_TYPE.MEDIUM_MOUNTAINS] = medMountainsLoop;
 
     var lowMountainsLoop = new ImageCellLoop();
     lowMountainsLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 176, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[60] = lowMountainsLoop;
+    this.imageCellLoops[TILE_TYPE.LOW_MOUNTAINS] = lowMountainsLoop;
 
     var marshLoop = new ImageCellLoop();
     marshLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 64, 0, 16, 16, 0, 0), 1000);
     //
-    this.imageCellLoops[59] = marshLoop;
+    this.imageCellLoops[TILE_TYPE.MARSH] = marshLoop;
 
     var strangeWormLoop = new ImageCellLoop();
     strangeWormLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 384, 240, 16, 16, 0, 0), 4001);
@@ -223,7 +209,7 @@ var Gui = function() {
     strangeWormLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 416, 240, 16, 16, 0, 0), 333);
     strangeWormLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 432, 240, 16, 16, 0, 0), 333);
     //
-    this.imageCellLoops[200] = strangeWormLoop;
+    this.imageCellLoops[TILE_TYPE.STRANGE_WORM] = strangeWormLoop;
 
     var avatarLoop = new ImageCellLoop();
     avatarLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 192, 160, 16, 16, 0, 0), 1000);
@@ -231,7 +217,7 @@ var Gui = function() {
     avatarLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 224, 160, 16, 16, 0, 0), 1000);
     avatarLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 240, 160, 16, 16, 0, 0), 300);
     //
-    this.imageCellLoops[301] = avatarLoop;
+    this.imageCellLoops[TILE_TYPE.AVATAR] = avatarLoop;
 
     var orcLoop = new ImageCellLoop();
     orcLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 0, 224, 16, 16, 0, 0), 750);
@@ -239,7 +225,7 @@ var Gui = function() {
     orcLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 32, 224, 16, 16, 0, 0), 350);
     orcLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 48, 224, 16, 16, 0, 0), 1250);
     //
-    this.imageCellLoops[302] = orcLoop;
+    this.imageCellLoops[TILE_TYPE.MONSTER_ORC] = orcLoop;
 
     var headlessLoop = new ImageCellLoop();
     headlessLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 256, 224, 16, 16, 0, 0), 350);
@@ -247,7 +233,7 @@ var Gui = function() {
     headlessLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 288, 224, 16, 16, 0, 0), 350);
     headlessLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 304, 224, 16, 16, 0, 0), 900);
     //
-    this.imageCellLoops[303] = headlessLoop;
+    this.imageCellLoops[TILE_TYPE.MONSTER_HEADLESS] = headlessLoop;
 
   };
   
