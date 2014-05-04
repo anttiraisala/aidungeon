@@ -1,5 +1,5 @@
 var Game = function() {
-  this.map = null;
+  this.map = new Map();
   this.gui = new Gui();
   this.input = new Input();
   this.currentState = {
@@ -11,16 +11,11 @@ var Game = function() {
   this.init = function() {
     var ctx = this;
     $("#v_canvasMap").on("keydown", "", function(event) {
-      //event.preventDefault();
-      //console.log("keydown" + event.which);
-      ctx.input.keyDowns[event.which] = true;
+      ctx.input.keyPressed(event.which);
     });
 
     $("#v_canvasMap").on("keyup", "", function(event) {
-      //event.preventDefault();
-      //console.log("keyup" + event.which);
-
-      ctx.input.keyDowns[event.which] = false;
+      ctx.input.keyReleased(event.which);
     });
 
     $("#v_canvasMap").on("mousedown", function(event) {
@@ -53,11 +48,10 @@ var Game = function() {
       $('.v_debugText6').val("touchmove / " + new Date().getTime());
     });
 
-    this.currentState.actors[0] = new Actor(9, 7, "Hero", TILE_TYPE.AVATAR);
-    this.currentState.actors[1] = new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC);
-    this.currentState.actors[2] = new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS);
-
-    this.map = new Map();
+    this.currentState.actors.push(new Actor(9, 7, "Hero", TILE_TYPE.AVATAR, true));
+    this.currentState.actors.push(new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC, false));
+    this.currentState.actors.push(new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS, false));
+    
     this.map.init();
     
     var ctx = this;
@@ -89,17 +83,35 @@ var Game = function() {
   };
   
   this.mapLoop = function() {
-
-    // Make sure that keys do not repeat too fast
-    if(this.input.checkPlayerInputInterval() === false) {
+  
+    //Execute loop only if player has some activity
+    if(this.input.isPlayerInputQueueEmpty()) {
       return;
     }
 
-    //Move player
-    if (this.input.isDirectionalKeyPushed()) {
-      var key = this.input.getPushedDirectionalKey();
+    // Make sure that player do not push keys too fast
+    if(!this.input.isPlayerInputIntervalValid()) {
+      return;
+    }
+    
+    var key = this.input.getNextKeyFromQueue();
+    var playerHasActivity = false;
+
+    //Move player if directional key
+    if (this.input.isDirectionalKey(key)) {
       var direction = this.input.getDirectionalInputKeyDirection(key);
       this.getPlayer().move(direction, this.map, this.currentState.actors);
+      playerHasActivity = true;
+    }
+    
+    //Execute monster AI if player has done some activity
+    if(playerHasActivity) {
+    var ctx = this;
+      this.currentState.actors.forEach(function(actor) {
+        if(!actor.isPlayer) {
+          actor.actorAI.executeTurn(ctx.map, ctx.currentState.actors);
+        }
+      });
     }
   };
   
@@ -109,6 +121,12 @@ var Game = function() {
   * @return {Actor} player Actor instance
   */
   this.getPlayer = function() {
-    return this.currentState.actors[0];
+    var player = null;
+    this.currentState.actors.forEach(function(actor) {
+      if(actor.isPlayer) {
+        player = actor;
+      }
+    });
+    return player;
   };
 };

@@ -1,11 +1,19 @@
 /**
 * Actor is player or monster
 */
-var Actor = function(x, y, name, tileType) {
+var Actor = function(x, y, name, tileType, isPlayer) {
   this.x = x;
   this.y = y;
   this.name = name;
   this.tileType = tileType;
+  this.isPlayer = isPlayer;
+  this.actorAI;
+  
+  this.init = function() {
+    if(!this.isPlayer) {
+      this.actorAI = new ActorAI(this);
+    }
+  };
   
   /**
   * Move actor in map to given direction. Validates movement target tile.
@@ -59,4 +67,6 @@ var Actor = function(x, y, name, tileType) {
     this.x = targetX;
     this.y = targetY;
   }
+  
+  this.init();
 };
