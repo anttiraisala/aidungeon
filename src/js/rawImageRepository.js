@@ -1,3 +1,6 @@
+/**
+* Utility to load and store tileset graphics.
+*/
 var RawImageRepository = function() {
   var sourcePaths = [];
   var rawImages = [];

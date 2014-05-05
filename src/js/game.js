@@ -89,18 +89,13 @@ var Game = function() {
     if(this.input.getKeyDowns().length > 0 && this.input.isPlayerInputIntervalValid()) {
       playerHasActivity = this.handlePlayerKeyboardPress(player);
       
-      //Player is controlled by keys, remove highlight and reset player path queue
-      this.gui.highlightedTiles = [];
+      //Player is controlled by keys, reset player path queue
       player.resetMovementPathQueue();
     }
     
     //Continue player path queue if it exists
     if(!playerHasActivity && player.hasMovementPathQueue() && this.checkPlayerPathQueueExecutionInterval()) {
       playerHasActivity = player.handleMovementPathQueue(this.map, this.actors);
-    }
-    else if(!player.hasMovementPathQueue()) {
-      //No more path queue, remove highlights
-      this.gui.highlightedTiles = [];
     }
     
     //Execute monster AI if player has done some activity
@@ -131,16 +126,13 @@ var Game = function() {
   };
   
   /**
-  * Handle player mouse clicka.
+  * Handle player mouse clicks.
   *
   * @param {Actor} player Player that is controlled.
   * @return {boolean} true if mouse click coordinate is valid path target.
   */
   this.handlePlayerMapMouseClick = function(player) {
     var playerHasActivity = false;
-  
-    //Remove old highlights
-    this.gui.highlightedTiles = [];
     
     //Get map coordinate for click
     var mapCoordinate = this.gui.getMapCoordinateForCanvasLocation(this.input.lastMouseClickCanvasPosition.x, this.input.lastMouseClickCanvasPosition.y, this.actors);
@@ -153,7 +145,6 @@ var Game = function() {
       path.shift();
       
       player.movementPathQueue = path;
-      this.gui.highlightedTiles = path;
       
       if(path.length > 0) {
         playerHasActivity = true;

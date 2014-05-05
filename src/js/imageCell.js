@@ -1,3 +1,6 @@
+/**
+* Object to handle single image part in tileset.
+*/
 var ImageCell = function(pRawImageSource, pStartX, pStartY, pWidth, pHeight, pHotSpotX, pHotSpotY) {
 	// Default values
 	this.startX = 0;

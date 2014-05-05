@@ -1,8 +1,18 @@
+/**
+* All common contasntant. These are in global namespace.
+*/
+
+/**
+* State of game.
+*/
 var MAINLOOPSTATE = {
   MAP : 1,
   DISCUSSION : 2
 };
 
+/**
+* Direction in map
+*/
 var DIRECTION = {
   NORTH : "NORTH",
   SOUTH : "SOUTH",
@@ -10,6 +20,9 @@ var DIRECTION = {
   WEST : "WEST"
 };
 
+/**
+* Tile types. Also used to identify ImageCellLoops.
+*/
 var TILE_TYPE = {
   GRASS_LANDS :1,
   DENSE_WOODS : 2,
@@ -29,6 +42,9 @@ var TILE_TYPE = {
   MONSTER_HEADLESS : 303
 };
 
+/**
+* Keyboard key codes
+*/
 var KEY = {
   VK_CANCEL : 3,
   VK_HELP : 6,
