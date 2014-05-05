@@ -64,6 +64,13 @@ var Game = function() {
   
   this.mapLoop = function() {
   
+    if(this.input.lastMouseClickCanvasPosition) {
+      this.gui.highlightedTiles = [];
+      var mapCoordinate = this.gui.getMapCoordinateForCanvasLocation(this.input.lastMouseClickCanvasPosition.x, this.input.lastMouseClickCanvasPosition.y, this.actors);
+      this.gui.highlightedTiles.push(mapCoordinate);
+      this.input.lastMouseClickCanvasPosition = null;
+    }
+  
     //Execute loop only if player has pressed some key
     if(this.input.getKeyDowns().length === 0) {
       return;

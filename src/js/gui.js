@@ -17,6 +17,7 @@ var Gui = function() {
   this.tileSize;
   this.horizontalTileCount;
   this.verticalTileCount;
+  this.highlightedTiles = [];
 
   /**
    * requestAnim shim layer by Paul Irish
@@ -49,11 +50,24 @@ var Gui = function() {
     });
   };
   
-  this.getMapCoordinateForCanvasLocation = function(x, y) {
+  this.getMapCoordinateForCanvasLocation = function(x, y, actors) {
+    var bottomLeftCornerX = actors[0].x - Math.ceil(this.horizontalTileCount / 2);
+    var bottomLeftCornerY = actors[0].y - Math.ceil(this.verticalTileCount / 2);
   
+    var tileX = Math.floor(x / this.tileSize) + bottomLeftCornerX;
+    var tileY = this.verticalTileCount - Math.floor(y / this.tileSize) + bottomLeftCornerY - 1;
+    //console.log("actors[0].x: "+actors[0].x+", actors[0].y: "+actors[0].y);
+    //console.log("x: "+x+", y: "+y);
+    //console.log("tileX: "+tileX+", tileY: "+tileY);
+    
+    return {
+      x : tileX,
+      y : tileY
+    };
   };
 
   this.drawMap = function(map, actors) {
+    //Clear canvas
     this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
 
     //Center map to player
@@ -93,6 +107,15 @@ var Gui = function() {
       if (x >= 0 && x < ctx.horizontalTileCount && y >= 0 && y < ctx.verticalTileCount) {
         ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.mapCanvasZoom);
       }
+    });
+    
+    //Draw higlighted tile borders
+    this.highlightedTiles.forEach(function(highlight) {
+      var x = highlight.x - bottomLeftCornerX;
+      var y = highlight.y - bottomLeftCornerY;
+      
+      ctx.canvasCtx.strokeStyle = "#FF0000";
+      ctx.canvasCtx.strokeRect(x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.tileSize, ctx.tileSize);
     });
     
     //Request next redraw
