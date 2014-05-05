@@ -9,6 +9,9 @@ var Actor = function(x, y, name, tileType, isPlayer) {
   this.isPlayer = isPlayer;
   this.actorAI;
   
+  /**
+  * Init actor. Called automatically.
+  */
   this.init = function() {
     if(!this.isPlayer) {
       this.actorAI = new ActorAI(this);
@@ -54,13 +57,8 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     }
     
     //Check that there is no another actor in target coordinates
-    var anotherActorFound = false;
-    actors.forEach(function(actor) {
-      if(actor.x === targetX && actor.y === targetY) {
-        anotherActorFound = true;
-      }
-    });
-    if(anotherActorFound) {
+    var actorInTarget = ActorHelper.getActorForCoordinates(targetX, targetY, actors);
+    if(actorInTarget) {
       return false;
     }
     

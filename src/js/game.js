@@ -87,33 +87,17 @@ var Game = function() {
     var directionalKey = this.input.getPushedDirectionalKey();
     if (directionalKey) {
       var direction = this.input.getDirectionalInputKeyDirection(directionalKey);
-      this.getPlayer().move(direction, this.map, this.actors);
+      ActorHelper.getPlayer(this.actors).move(direction, this.map, this.actors);
       playerHasActivity = true;
     }
     
     //Execute monster AI if player has done some activity
     if(playerHasActivity) {
-    var ctx = this;
-      this.actors.forEach(function(actor) {
-        if(!actor.isPlayer) {
-          actor.actorAI.executeTurn(ctx.map, ctx.actors);
-        }
-      });
-    }
-  };
-  
-  /**
-  * Returns player Actor instance.
-  *
-  * @return {Actor} player Actor instance
-  */
-  this.getPlayer = function() {
-    var player = null;
     this.actors.forEach(function(actor) {
-      if(actor.isPlayer) {
-        player = actor;
+      if(!actor.isPlayer) {
+        actor.actorAI.executeTurn(this.map, this.actors);
       }
-    });
-    return player;
+    }, this);
+    }
   };
 };
