@@ -1,3 +1,6 @@
+/**
+* Game main instance. Start game with init().
+*/
 var Game = function() {
   this.map = new Map();
   this.gui = new Gui();
@@ -7,7 +10,9 @@ var Game = function() {
   this.lastPlayerPathQueueExecutionTime = 0;
   this.playerPathQueueExecutionInterval = 500;
   
-  
+  /**
+  * Init game and start resource loading.
+  */
   this.init = function() {
     $("#v_canvasMap").on("mousemove", function(event) {
       //event.preventDefault();
@@ -42,6 +47,9 @@ var Game = function() {
     });
   };
 
+  /**
+  * Resource loading is complete. Start game.
+  */
   this.start = function() {
     var ctx = this;
     window.setInterval(function() {
@@ -50,6 +58,9 @@ var Game = function() {
     // TODO: map could be updated only when necessary, i.e. when cellLoop has advanced or actor has moved etc.
   };
   
+  /**
+  * Main logic loop for game. This is called at 60 fps.
+  */
   this.mainLoop = function() {
     switch(this.mainLoopState) {
       case MAINLOOPSTATE.MAP : {
@@ -62,6 +73,9 @@ var Game = function() {
     };
   };
   
+  /**
+  * Main logic loop for map state. Hadles player movement and monster AI execution.
+  */
   this.mapLoop = function() {
     var player = ActorHelper.getPlayer(this.actors);
     var playerHasActivity = false;
@@ -99,6 +113,12 @@ var Game = function() {
     }
   };
   
+  /**
+  * Handle player keyboard key presses.
+  *
+  * @param {Actor} player Player that is controlled.
+  * @return {boolean} true if player is moved (or tried to move)
+  */
   this.handlePlayerKeyboardPress = function(player) {
     //Move player if directional key is pushed
     var directionalKey = this.input.getPushedDirectionalKey();
@@ -110,6 +130,12 @@ var Game = function() {
     return false;
   };
   
+  /**
+  * Handle player mouse clicka.
+  *
+  * @param {Actor} player Player that is controlled.
+  * @return {boolean} true if mouse click coordinate is valid path target.
+  */
   this.handlePlayerMapMouseClick = function(player) {
     var playerHasActivity = false;
   
@@ -140,6 +166,11 @@ var Game = function() {
     return playerHasActivity;
   };
   
+  /**
+  * Check if player path queue execution interval is valid.
+  *
+  * @return {boolean} true if path queue execution is allowed.
+  */
   this.checkPlayerPathQueueExecutionInterval = function() {
     var currentTime = new Date().getTime();
     if (currentTime - this.lastPlayerPathQueueExecutionTime < this.playerPathQueueExecutionInterval) {

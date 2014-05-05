@@ -1,8 +1,14 @@
+/**
+* Game map presentation.
+*/
 var Map = function() {
   this.tiles = [];
   this.width = 30;
   this.height = 30;
   
+  /**
+  * Inits default map data.
+  */
   this.init = function() {
     var mapData = [];
     for (var x = 0; x < this.width; x++) {
@@ -83,11 +89,19 @@ var Map = function() {
     // Strange Worm
     mapData[0][4] = new Tile(TILE_TYPE.STRANGE_WORM);
 
-    //console.log('mapData=' + JSON.stringify(mapData, null, 4));
-
     this.tiles = mapData;
   };
   
+  /**
+  * Find path in map for actor.
+  * Uses https://github.com/qiao/PathFinding.js
+  *
+  * @param {Actor} forActor Actor to whom the path is searched
+  * @param {int} targetX Target map X coordinate
+  * @param {int} targetY Target map Y coordinate
+  * @param {Array} actors All game actors
+  * @return {Array} Array of arrays that contain x in index 0 and y in index 1. Example: [ [ 1, 2 ], [ 1, 1 ]d ]
+  */
   this.findPath = function(forActor, targetX, targetY, actors) {
     var grid = new PF.Grid(this.width, this.height);
     
@@ -112,6 +126,15 @@ var Map = function() {
     return finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);;
   };
   
+  /**
+  * Get DIRECTION from start coordinate to end coordinate.
+  *
+  * @param {int} startX Start map X coordinate
+  * @param {int} startY Start map Y coordinate
+  * @param {int} targetX Target map X coordinate
+  * @param {int} targetY Target map Y coordinate
+  * @return {String} DIRECTION contant value. Null if target is in west, east, south or north.
+  */
   this.getDirectionForCoordinate = function(startX, startY, targetX, targetY) {
     if(targetX === startX) {
       if(targetY > startY) {

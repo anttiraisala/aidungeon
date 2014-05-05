@@ -19,14 +19,27 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     }
   };
   
+  /**
+  * Reset path queue.
+  */
   this.resetMovementPathQueue = function() {
     return this.movementPathQueue = [];
   };
   
+  /**
+  * Do this actor have a movement path queue?
+  */
   this.hasMovementPathQueue = function() {
     return this.movementPathQueue.length > 0;
   };
   
+  /**
+  * Handle next step of movement path queue.
+  *
+  * @param {Map} map Map instance
+  * @param {Array} actors All actors in map
+  * @return {boolean} True if movement was succesfull, else false
+  */
   this.handleMovementPathQueue = function(map, actors) {
     if(this.movementPathQueue.length === 0) {
       return false;
@@ -37,6 +50,7 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     var direction = map.getDirectionForCoordinate(this.x, this.y, nextPathStep[0], nextPathStep[1]);
     var movementSuccess = this.move(direction, map, actors);
     
+    //Cancel the whole queue if movement is not possible. Another actor might have moved to path.
     if(!movementSuccess) {
       this.resetMovementPathQueue();
     }
