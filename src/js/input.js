@@ -2,6 +2,30 @@ var Input = function() {
   this.keyDowns = [];
   this.lastKeyDownTime = 0;
   this.keyDownMinInterval = 100;
+  this.lastMouseClickCanvasPosition = null;
+  
+  this.init = function() {
+    var ctx = this;
+    $("#v_canvasMap").on("keydown", "", function(event) {
+      ctx.keyPressed(event.which);
+    });
+
+    $("#v_canvasMap").on("keyup", "", function(event) {
+      ctx.keyReleased(event.which);
+    });
+    
+    $("#v_canvasMap").on("mouseup", function(event) {
+      ctx.lastMouseClickCanvasPosition = ctx.getCanvasMousePosition(event);
+    });
+  };
+  
+  this.getCanvasMousePosition = function(mouseEvent) {
+    var rect = $("#v_canvasMap")[0].getBoundingClientRect();
+    return {
+      x: mouseEvent.clientX - rect.left,
+      y: mouseEvent.clientY - rect.top
+    };
+  }
   
   this.keyPressed = function(key) {
     this.keyDowns[key] = true;

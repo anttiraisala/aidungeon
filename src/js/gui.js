@@ -14,6 +14,9 @@ var Gui = function() {
   this.fpsCounter = 0;
   this.lastAnimationFrameTime = 0;
   this.canvasCtx;
+  this.tileSize;
+  this.horizontalTileCount;
+  this.verticalTileCount;
 
   /**
    * requestAnim shim layer by Paul Irish
@@ -31,6 +34,10 @@ var Gui = function() {
     this.rawImageRepository.addSourcePath("imgs/tileSets/Ultima_5_-_Tiles.png");
     this.canvasCtx = $("#v_canvasMap")[0].getContext('2d');
     $("#v_canvasMap").focus();
+    
+    this.tileSize = this.mapTileSize * this.mapCanvasZoom;
+    this.horizontalTileCount = Math.ceil(this.mapCanvasWidth / this.tileSize);
+    this.verticalTileCount = Math.ceil(this.mapCanvasHeight / this.tileSize);
 
     var ctx = this;
     this.rawImageRepository.loadRawImages(function() {
@@ -44,21 +51,22 @@ var Gui = function() {
       callback();
     });
   };
+  
+  this.getMapCoordinateForCanvasLocation = function(x, y) {
+  
+  };
 
   this.drawMap = function(map, actors) {
-    var tileSize = this.mapTileSize * this.mapCanvasZoom;
-    var horizontalTileCount = Math.ceil(this.mapCanvasWidth / tileSize);
-    var verticalTileCount = Math.ceil(this.mapCanvasHeight / tileSize);
-
     this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
     this.canvasCtx.fillStyle = "#FF0000";
 
     //Center map to player
-    var bottomLeftCornerX = actors[0].x - Math.ceil(horizontalTileCount / 2);
-    var bottomLeftCornerY = actors[0].y - Math.ceil(verticalTileCount / 2);
+    var bottomLeftCornerX = actors[0].x - Math.ceil(this.horizontalTileCount / 2);
+    var bottomLeftCornerY = actors[0].y - Math.ceil(this.verticalTileCount / 2);
 
-    for (var y = 0; y < verticalTileCount; y++) {
-      for (var x = 0; x < horizontalTileCount; x++) {
+    //Draw map
+    for (var y = 0; y < this.verticalTileCount; y++) {
+      for (var x = 0; x < this.horizontalTileCount; x++) {
 
         var mapDataX = bottomLeftCornerX + x;
         var mapDataY = bottomLeftCornerY + y;
@@ -71,13 +79,12 @@ var Gui = function() {
 
         if (this.imageCellLoops[mapTile.type] != undefined) {
           var cellLoop = this.imageCellLoops[mapTile.type];
-          this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, this.mapCanvasZoom);
+          this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * this.tileSize, (this.verticalTileCount - y - 1) * this.tileSize, this.mapCanvasZoom);
 
         } else {
-          this.canvasCtx.fillStyle = "#FF0000"; //White
-          this.canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
+          //this.canvasCtx.fillStyle = "#FF0000"; //White
+          //this.canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
         }
-
       }
     }
 
@@ -91,8 +98,8 @@ var Gui = function() {
       var x = ax - bottomLeftCornerX;
       var y = ay - bottomLeftCornerY;
 
-      if (x >= 0 && x < horizontalTileCount && y >= 0 && y < verticalTileCount) {
-        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * tileSize, (verticalTileCount - y - 1) * tileSize, ctx.mapCanvasZoom);
+      if (x >= 0 && x < ctx.horizontalTileCount && y >= 0 && y < ctx.verticalTileCount) {
+        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.mapCanvasZoom);
       }
     });
   };

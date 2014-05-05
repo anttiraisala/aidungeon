@@ -2,32 +2,11 @@ var Game = function() {
   this.map = new Map();
   this.gui = new Gui();
   this.input = new Input();
-  this.currentState = {
-    mainLoopState : MAINLOOPSTATE.MAP,
-    actors : []
-  };
+  this.mainLoopState = MAINLOOPSTATE.MAP;
+  this.actors = [];
   
   
   this.init = function() {
-    var ctx = this;
-    $("#v_canvasMap").on("keydown", "", function(event) {
-      ctx.input.keyPressed(event.which);
-    });
-
-    $("#v_canvasMap").on("keyup", "", function(event) {
-      ctx.input.keyReleased(event.which);
-    });
-
-    $("#v_canvasMap").on("mousedown", function(event) {
-      //event.preventDefault();
-      $('.v_debugText2').val("mousedown / " + new Date().getTime());
-    });
-
-    $("#v_canvasMap").on("mouseup", function(event) {
-      //event.preventDefault();
-      $('.v_debugText4').val("mouseup / " + new Date().getTime());
-    });
-
     $("#v_canvasMap").on("mousemove", function(event) {
       //event.preventDefault();
       $('.v_debugText3').val("mousemove / " + new Date().getTime());
@@ -48,14 +27,15 @@ var Game = function() {
       $('.v_debugText6').val("touchmove / " + new Date().getTime());
     });
 
-    this.currentState.actors.push(new Actor(9, 7, "Hero", TILE_TYPE.AVATAR, true));
-    this.currentState.actors.push(new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC, false));
-    this.currentState.actors.push(new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS, false));
+    this.actors.push(new Actor(9, 7, "Hero", TILE_TYPE.AVATAR, true));
+    this.actors.push(new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC, false));
+    this.actors.push(new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS, false));
     
     this.map.init();
+    this.input.init();
     
     var ctx = this;
-    this.gui.init(this.map, this.currentState.actors, function() {
+    this.gui.init(this.map, this.actors, function() {
       ctx.start();
     });
   };
@@ -70,7 +50,7 @@ var Game = function() {
   
   this.mainLoop = function() {
 
-    switch(this.currentState.mainLoopState) {
+    switch(this.mainLoopState) {
       case MAINLOOPSTATE.MAP : {
         this.mapLoop();
         break;
@@ -100,16 +80,16 @@ var Game = function() {
     var directionalKey = this.input.getPushedDirectionalKey();
     if (directionalKey) {
       var direction = this.input.getDirectionalInputKeyDirection(directionalKey);
-      this.getPlayer().move(direction, this.map, this.currentState.actors);
+      this.getPlayer().move(direction, this.map, this.actors);
       playerHasActivity = true;
     }
     
     //Execute monster AI if player has done some activity
     if(playerHasActivity) {
     var ctx = this;
-      this.currentState.actors.forEach(function(actor) {
+      this.actors.forEach(function(actor) {
         if(!actor.isPlayer) {
-          actor.actorAI.executeTurn(ctx.map, ctx.currentState.actors);
+          actor.actorAI.executeTurn(ctx.map, ctx.actors);
         }
       });
     }
@@ -122,7 +102,7 @@ var Game = function() {
   */
   this.getPlayer = function() {
     var player = null;
-    this.currentState.actors.forEach(function(actor) {
+    this.actors.forEach(function(actor) {
       if(actor.isPlayer) {
         player = actor;
       }
