@@ -43,10 +43,7 @@ var Gui = function() {
     this.rawImageRepository.loadRawImages(function() {
       ctx.createImageCellLoops();
       ctx.animationTimeKeepingLoop();
-      
-      window.setInterval(function() {
-        ctx.drawMap(map, actors);
-      }, 0);
+      ctx.drawMap(map, actors);
       
       callback();
     });
@@ -58,7 +55,6 @@ var Gui = function() {
 
   this.drawMap = function(map, actors) {
     this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
-    this.canvasCtx.fillStyle = "#FF0000";
 
     //Center map to player
     var bottomLeftCornerX = actors[0].x - Math.ceil(this.horizontalTileCount / 2);
@@ -80,10 +76,6 @@ var Gui = function() {
         if (this.imageCellLoops[mapTile.type] != undefined) {
           var cellLoop = this.imageCellLoops[mapTile.type];
           this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * this.tileSize, (this.verticalTileCount - y - 1) * this.tileSize, this.mapCanvasZoom);
-
-        } else {
-          //this.canvasCtx.fillStyle = "#FF0000"; //White
-          //this.canvasCtx.fillRect(x * tileSize, (verticalTileCount - y - 1) * tileSize, tileSize, tileSize);
         }
       }
     }
@@ -101,6 +93,11 @@ var Gui = function() {
       if (x >= 0 && x < ctx.horizontalTileCount && y >= 0 && y < ctx.verticalTileCount) {
         ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.mapCanvasZoom);
       }
+    });
+    
+    //Request next redraw
+    requestAnimFrame(function() {
+      ctx.drawMap(map, actors);
     });
   };
   
@@ -121,17 +118,12 @@ var Gui = function() {
     this.fpsCounter++;
     if (currentTime - this.lastAnimationFrameTime >= 1000) {
       this.lastAnimationFrameTime = currentTime;
-
-      var hours = d.getHours();
-      var minutes = d.getMinutes();
-      var seconds = d.getSeconds();
-
-      $("#fpsCounter").text(this.fpsCounter + "fps : " + currentTime + " : " + (hours < 10 ? "0" : "") + hours + "." + (minutes < 10 ? "0" : "") + minutes + "." + (seconds < 10 ? "0" : "") + seconds + " :: " + this.dAnimateStartTime + "ms");
+      $("#fpsCounter").text(this.fpsCounter + " fps");
       this.fpsCounter = 0;
     }
 
     this.imageCellLoops.forEach(function(imageCellLoop) {
-      imageCellLoop.advanceTime(ctx);
+      imageCellLoop.advanceTime(ctx.dAnimateStartTime);
     });
   };
   

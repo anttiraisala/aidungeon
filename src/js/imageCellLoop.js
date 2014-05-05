@@ -21,8 +21,8 @@ var ImageCellLoop = function() {
     return this.currentFrameIndex;
   };
 
-  this.advanceTime = function(gui) {
-    this.currentTime += gui.dAnimateStartTime;
+  this.advanceTime = function(dAnimateStartTime) {
+    this.currentTime += dAnimateStartTime;
 
     if (this.currentTime >= this.frameDelays[this.currentFrameIndex]) {
       this.currentTime = 0;
