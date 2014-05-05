@@ -55,7 +55,7 @@ var Gui = function() {
     var bottomLeftCornerY = actors[0].y - Math.ceil(this.verticalTileCount / 2);
   
     var tileX = Math.floor(x / this.tileSize) + bottomLeftCornerX;
-    var tileY = this.verticalTileCount - Math.floor(y / this.tileSize) + bottomLeftCornerY - 1;
+    var tileY = Math.floor(y / this.tileSize) + bottomLeftCornerY;
     //console.log("actors[0].x: "+actors[0].x+", actors[0].y: "+actors[0].y);
     //console.log("x: "+x+", y: "+y);
     //console.log("tileX: "+tileX+", tileY: "+tileY);
@@ -89,7 +89,7 @@ var Gui = function() {
 
         if (this.imageCellLoops[mapTile.type] != undefined) {
           var cellLoop = this.imageCellLoops[mapTile.type];
-          this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * this.tileSize, (this.verticalTileCount - y - 1) * this.tileSize, this.mapCanvasZoom);
+          this.drawImageCellOntoCanvas(this.canvasCtx, cellLoop.getCurrentFrame(), x * this.tileSize, y * this.tileSize, this.mapCanvasZoom);
         }
       }
     }
@@ -105,7 +105,7 @@ var Gui = function() {
       var y = ay - bottomLeftCornerY;
 
       if (x >= 0 && x < ctx.horizontalTileCount && y >= 0 && y < ctx.verticalTileCount) {
-        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.mapCanvasZoom);
+        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, y * ctx.tileSize, ctx.mapCanvasZoom);
       }
     });
     
@@ -115,7 +115,7 @@ var Gui = function() {
       var y = highlight.y - bottomLeftCornerY;
       
       ctx.canvasCtx.strokeStyle = "#FF0000";
-      ctx.canvasCtx.strokeRect(x * ctx.tileSize, (ctx.verticalTileCount - y - 1) * ctx.tileSize, ctx.tileSize, ctx.tileSize);
+      ctx.canvasCtx.strokeRect(x * ctx.tileSize, y * ctx.tileSize, ctx.tileSize, ctx.tileSize);
     });
     
     //Request next redraw

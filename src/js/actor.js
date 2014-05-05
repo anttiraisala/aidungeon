@@ -31,10 +31,10 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     var targetY = this.y;
 
     if (direction == DIRECTION.NORTH) {
-      targetY++;
+      targetY--;
     }
     if (direction == DIRECTION.SOUTH) {
-      targetY--;
+      targetY++;
     }
     if (direction == DIRECTION.WEST) {
       targetX--;
