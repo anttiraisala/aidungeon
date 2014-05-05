@@ -1,24 +1,14 @@
 var Input = function() {
   this.keyDowns = [];
-  this.keyQueue = [];
   this.lastKeyDownTime = 0;
   this.keyDownMinInterval = 100;
   
   this.keyPressed = function(key) {
     this.keyDowns[key] = true;
-    this.keyQueue.push(key);
   };
   
   this.keyReleased = function(key) {
     this.keyDowns[key] = false;
-  };
-  
-  this.isPlayerInputQueueEmpty = function() {
-    return this.keyQueue.length === 0;
-  };
-  
-  this.peekNextKeyFromQueue = function() {
-    return this.keyQueue.legth > 0 ? this.keyQueue[0] : null;
   };
   
   this.getNextKeyFromQueue = function() {
@@ -48,6 +38,25 @@ var Input = function() {
 
   this.isDirectionalKey = function(key) {
     return key === KEY.VK_UP || key === KEY.VK_DOWN || key === KEY.VK_LEFT || key === KEY.VK_RIGHT;
+  };
+  
+  this.getPushedDirectionalKey = function() {
+    var result = 0;
+
+    if (this.isKeyDown(KEY.VK_UP)) {
+      return KEY.VK_UP;
+    }
+    else if (this.isKeyDown(KEY.VK_DOWN)) {
+      return KEY.VK_DOWN;
+    }
+    else if (this.isKeyDown(KEY.VK_LEFT)) {
+      return KEY.VK_LEFT;
+    }
+    else if (this.isKeyDown(KEY.VK_RIGHT)) {
+      return KEY.VK_RIGHT;
+    }
+
+    return result;
   };
   
   this.getDirectionalInputKeyDirection = function(key) {
