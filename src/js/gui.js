@@ -111,8 +111,8 @@ var Gui = function() {
     
     //Draw higlighted tile borders
     this.highlightedTiles.forEach(function(highlight) {
-      var x = highlight.x - bottomLeftCornerX;
-      var y = highlight.y - bottomLeftCornerY;
+      var x = highlight[0] - bottomLeftCornerX;
+      var y = highlight[1] - bottomLeftCornerY;
       
       ctx.canvasCtx.strokeStyle = "#FF0000";
       ctx.canvasCtx.strokeRect(x * ctx.tileSize, y * ctx.tileSize, ctx.tileSize, ctx.tileSize);

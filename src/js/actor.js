@@ -8,6 +8,7 @@ var Actor = function(x, y, name, tileType, isPlayer) {
   this.tileType = tileType;
   this.isPlayer = isPlayer;
   this.actorAI;
+  this.movementPathQueue = [];
   
   /**
   * Init actor. Called automatically.
@@ -16,6 +17,31 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     if(!this.isPlayer) {
       this.actorAI = new ActorAI(this);
     }
+  };
+  
+  this.resetMovementPathQueue = function() {
+    return this.movementPathQueue = [];
+  };
+  
+  this.hasMovementPathQueue = function() {
+    return this.movementPathQueue.length > 0;
+  };
+  
+  this.handleMovementPathQueue = function(map, actors) {
+    if(this.movementPathQueue.length === 0) {
+      return false;
+    }
+    
+    //Hadle next path step
+    var nextPathStep = this.movementPathQueue.shift();
+    var direction = map.getDirectionForCoordinate(this.x, this.y, nextPathStep[0], nextPathStep[1]);
+    var movementSuccess = this.move(direction, map, actors);
+    
+    if(!movementSuccess) {
+      this.resetMovementPathQueue();
+    }
+    
+    return movementSuccess;
   };
   
   /**
@@ -64,6 +90,8 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     
     this.x = targetX;
     this.y = targetY;
+    
+    return true;
   }
   
   this.init();

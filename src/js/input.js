@@ -40,7 +40,7 @@ var Input = function() {
   };
   
   this.isPlayerInputIntervalValid = function() {
-    var currentTime = $.now();
+    var currentTime = new Date().getTime();
     if (currentTime - this.lastKeyDownTime < this.keyDownMinInterval) {
       return false;
     }

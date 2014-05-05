@@ -86,7 +86,50 @@ var Map = function() {
     //console.log('mapData=' + JSON.stringify(mapData, null, 4));
 
     this.tiles = mapData;
-
-    //console.log('worldMap.tiles=' + JSON.stringify(worldMap.tiles, null, 4));
+  };
+  
+  this.findPath = function(forActor, targetX, targetY, actors) {
+    var grid = new PF.Grid(this.width, this.height);
+    
+    //Set all blockin map coordinates
+    for (var x = 0; x < this.width; x++) {
+      for (var y = 0; y < this.height; y++) {
+        if(this.tiles[x][y].isBlocking(forActor)) {
+          grid.setWalkableAt(x, y, false);
+        }
+      }
+    }
+    
+    //Set all blocking actors (not including actor to whom the path is searched)
+    actors.forEach(function(actor) {
+      if(forActor != actor) {
+        grid.setWalkableAt(actor.x, actor.y, false);
+      }
+    });
+    
+    //Find and return path
+    var finder = new PF.AStarFinder();
+    return finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);;
+  };
+  
+  this.getDirectionForCoordinate = function(startX, startY, targetX, targetY) {
+    if(targetX === startX) {
+      if(targetY > startY) {
+        return DIRECTION.SOUTH;
+      }
+      else if(targetY < startY) {
+        return DIRECTION.NORTH;
+      }
+    }
+    else if(targetY === startY) {
+      if(targetX > startX) {
+        return DIRECTION.EAST;
+      }
+      else if(targetX < startX) {
+        return DIRECTION.WEST;
+      }
+    }
+    
+    return null;
   };
 };
