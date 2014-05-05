@@ -8,7 +8,7 @@ var Tile = function(type) {
   * Is given actor prohibited of entering this tile?
   *
   * @param {Actor} actor Actor that is moving to this tile
-  * @param {boolean} true if moving to this tile is prohibited, else false.
+  * @return {boolean} true if moving to this tile is prohibited, else false.
   */
   this.isBlocking = function(actor) {
     if(this.type == TILE_TYPE.GRASS_LANDS ||

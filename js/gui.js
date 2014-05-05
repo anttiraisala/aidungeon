@@ -1,5 +1,5 @@
 /**
- * @author Antti
+ * GUI handles all Canvas logic
  */
 var Gui = function() {
 
@@ -17,7 +17,6 @@ var Gui = function() {
   this.tileSize;
   this.horizontalTileCount;
   this.verticalTileCount;
-  this.highlightedTiles = [];
 
   /**
    * requestAnim shim layer by Paul Irish
@@ -31,6 +30,13 @@ var Gui = function() {
     };
   })();
 
+  /**
+  * Starts GUI. Loads resources and starts rendering loop. Calls callback when done.
+  *
+  * @param {Map} map Map instance
+  * @param {Array} actors All actors in map
+  * @param {Function} callback Callback that is called when resources are loaded and GUI init is ready.
+  */
   this.init = function(map, actors, callback) {
     this.rawImageRepository.addSourcePath("imgs/tileSets/Ultima_5_-_Tiles.png");
     this.canvasCtx = $("#v_canvasMap")[0].getContext('2d');
@@ -50,15 +56,22 @@ var Gui = function() {
     });
   };
   
+  /**
+  * Converts Canvas coordinate point to Game Map coordiate.
+  *
+  * @param {int} x Canvas point X coordinate
+  * @param {int} y Canvas point Y coordinate
+  * @param {Array} actors All actors in map
+  * @return {object} Object with fields x and y. 
+  */
   this.getMapCoordinateForCanvasLocation = function(x, y, actors) {
-    var bottomLeftCornerX = actors[0].x - Math.ceil(this.horizontalTileCount / 2);
-    var bottomLeftCornerY = actors[0].y - Math.ceil(this.verticalTileCount / 2);
+    //Calculate map position. Player is always in the middle
+    var player = ActorHelper.getPlayer(actors);
+    var bottomLeftCornerX = player.x - Math.ceil(this.horizontalTileCount / 2);
+    var bottomLeftCornerY = player.y - Math.ceil(this.verticalTileCount / 2);
   
     var tileX = Math.floor(x / this.tileSize) + bottomLeftCornerX;
     var tileY = Math.floor(y / this.tileSize) + bottomLeftCornerY;
-    //console.log("actors[0].x: "+actors[0].x+", actors[0].y: "+actors[0].y);
-    //console.log("x: "+x+", y: "+y);
-    //console.log("tileX: "+tileX+", tileY: "+tileY);
     
     return {
       x : tileX,
@@ -66,15 +79,22 @@ var Gui = function() {
     };
   };
 
+  /**
+  * Loop to draw map (actors and terrain) to canvas. Rerendres at 60 fps.
+  *
+  * @param {Map} map Map instance
+  * @param {Array} actors All actors in map
+  */
   this.drawMap = function(map, actors) {
     //Clear canvas
     this.canvasCtx.clearRect(0, 0, this.mapCanvasWidth, this.mapCanvasHeight);
 
     //Center map to player
-    var bottomLeftCornerX = actors[0].x - Math.ceil(this.horizontalTileCount / 2);
-    var bottomLeftCornerY = actors[0].y - Math.ceil(this.verticalTileCount / 2);
+    var player = ActorHelper.getPlayer(actors);
+    var bottomLeftCornerX = player.x - Math.ceil(this.horizontalTileCount / 2);
+    var bottomLeftCornerY = player.y - Math.ceil(this.verticalTileCount / 2);
 
-    //Draw map
+    //Draw terrain
     for (var y = 0; y < this.verticalTileCount; y++) {
       for (var x = 0; x < this.horizontalTileCount; x++) {
 
@@ -95,35 +115,38 @@ var Gui = function() {
     }
 
     // Draw actors
-    var ctx = this;
     actors.forEach(function(actor) {
       var ax = actor.x;
       var ay = actor.y;
-      var cLoop = ctx.imageCellLoops[actor.tileType];
+      var cLoop = this.imageCellLoops[actor.tileType];
 
       var x = ax - bottomLeftCornerX;
       var y = ay - bottomLeftCornerY;
 
-      if (x >= 0 && x < ctx.horizontalTileCount && y >= 0 && y < ctx.verticalTileCount) {
-        ctx.drawImageCellOntoCanvas(ctx.canvasCtx, cLoop.getCurrentFrame(), x * ctx.tileSize, y * ctx.tileSize, ctx.mapCanvasZoom);
+      if (x >= 0 && x < this.horizontalTileCount && y >= 0 && y < this.verticalTileCount) {
+        this.drawImageCellOntoCanvas(this.canvasCtx, cLoop.getCurrentFrame(), x * this.tileSize, y * this.tileSize, this.mapCanvasZoom);
       }
-    });
+    }, this);
     
-    //Draw higlighted tile borders
-    this.highlightedTiles.forEach(function(highlight) {
-      var x = highlight[0] - bottomLeftCornerX;
-      var y = highlight[1] - bottomLeftCornerY;
+    //Draw player movement path queue highlight
+    player.movementPathQueue.forEach(function(pathCoordinate) {
+      var x = pathCoordinate[0] - bottomLeftCornerX;
+      var y = pathCoordinate[1] - bottomLeftCornerY;
       
-      ctx.canvasCtx.strokeStyle = "#FF0000";
-      ctx.canvasCtx.strokeRect(x * ctx.tileSize, y * ctx.tileSize, ctx.tileSize, ctx.tileSize);
-    });
+      this.canvasCtx.strokeStyle = "#FF0000";
+      this.canvasCtx.strokeRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+    }, this);
     
     //Request next redraw
+    var ctx = this;
     requestAnimFrame(function() {
       ctx.drawMap(map, actors);
     });
   };
   
+  /**
+  * Loop to manage tile animation timing. Recalls itself at 60 fps.
+  */
   this.animationTimeKeepingLoop = function() {
     var ctx = this;
     requestAnimFrame(function() {
@@ -146,18 +169,39 @@ var Gui = function() {
     }
 
     this.imageCellLoops.forEach(function(imageCellLoop) {
-      imageCellLoop.advanceTime(ctx.dAnimateStartTime);
-    });
+      imageCellLoop.advanceTime(this.dAnimateStartTime);
+    }, this);
   };
   
+  /**
+  * Draws ImageCell to Canvas to given coordinates.
+  *
+  * @param {CanvasRenderingContext2D} targetCanvasContext Canvas rendering context
+  * @param {ImageCell} sourceImageCell ImageCell to draw
+  * @param {int} targetX Drawing target X coordinate
+  * @param {int} targetY Drawing target Y coordinate
+  * @param {int} zoom ImgeCell image zooming level. Defaults to 1.
+  */
   this.drawImageCellOntoCanvas = function(targetCanvasContext, sourceImageCell, targetX, targetY, zoom) {
     if (zoom == undefined) {
       zoom = 1;
     }
 
-    targetCanvasContext.drawImage(sourceImageCell.rawImageSource, sourceImageCell.startX, sourceImageCell.startY, sourceImageCell.width, sourceImageCell.height, targetX - sourceImageCell.hotSpotX, targetY - sourceImageCell.hotSpotY, sourceImageCell.width * zoom, sourceImageCell.height * zoom);
+    targetCanvasContext.drawImage(
+      sourceImageCell.rawImageSource, 
+      sourceImageCell.startX, 
+      sourceImageCell.startY, 
+      sourceImageCell.width, 
+      sourceImageCell.height, 
+      targetX - sourceImageCell.hotSpotX, 
+      targetY - sourceImageCell.hotSpotY, 
+      sourceImageCell.width * zoom, 
+      sourceImageCell.height * zoom);
   };
 
+  /**
+  * Creates all ImageCellLoops from loaded tileset.
+  */
   this.createImageCellLoops = function() {
     var imageCellLoop1 = new ImageCellLoop();
     imageCellLoop1.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 388, 320, 26, 32, 13, 32), 500);

@@ -1,3 +1,6 @@
+/**
+* Loops tileset image parts to create animation.
+*/
 var ImageCellLoop = function() {
 
   this.sourceImageCells = [];
@@ -17,7 +20,6 @@ var ImageCellLoop = function() {
   };
   
   this.getCurrentFrameIndex = function(){
-    //console.log('getCurrentFrame=' + this.currentFrameIndex);
     return this.currentFrameIndex;
   };
 
