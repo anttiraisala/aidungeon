@@ -84,8 +84,8 @@ var Game = function() {
   
   this.mapLoop = function() {
   
-    //Execute loop only if player has some activity
-    if(this.input.isPlayerInputQueueEmpty()) {
+    //Execute loop only if player has pressed some key
+    if(this.input.getKeyDowns().length === 0) {
       return;
     }
 
@@ -94,12 +94,12 @@ var Game = function() {
       return;
     }
     
-    var key = this.input.getNextKeyFromQueue();
     var playerHasActivity = false;
 
     //Move player if directional key
-    if (this.input.isDirectionalKey(key)) {
-      var direction = this.input.getDirectionalInputKeyDirection(key);
+    var directionalKey = this.input.getPushedDirectionalKey();
+    if (directionalKey) {
+      var direction = this.input.getDirectionalInputKeyDirection(directionalKey);
       this.getPlayer().move(direction, this.map, this.currentState.actors);
       playerHasActivity = true;
     }
