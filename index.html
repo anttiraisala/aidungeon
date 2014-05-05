@@ -7,9 +7,11 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="js/lib/jquery-1.11.0.min.js"></script>
+    <script src="js/lib/pathfinding-browser.min.js"></script>
     <script src="js/gui.js"></script>
     <script src="js/map.js"></script>
     <script src="js/actor.js"></script>
+    <script src="js/actorHelper.js"></script>
     <script src="js/actorAI.js"></script>
     <script src="js/game.js"></script>
     <script src="js/constants.js"></script>
@@ -19,31 +21,17 @@
     <script src="js/input.js"></script>
     <script src="js/tile.js"></script>
   </head>
-  <!-- <body style="position: fixed; overflow-y: scroll; width: 100%;"  > -->
   <body>
-    <!-- Add your site or application content here -->
-    <p>
-      Testi 5.5.2014 15:16
-    </p>
+    <h2>
+      Testi 5.5.2014 19:15
+    </h2>
 
-    <div id="jQueryVersion"></div>
     <div id="fpsCounter"></div>
-
-    <input class="v_debugText" type="text" size="50" />
-    <br />
-    <input class="v_debugText2" type="text" size="35" />
-    <input class="v_debugText3" type="text" size="35" />
-    <input class="v_debugText4" type="text" size="35" />
-    <br />
-    <input class="v_debugText5" type="text" size="35" />
-    <input class="v_debugText6" type="text" size="35" />
-    <input class="v_debugText7" type="text" size="35" />
-    <br />
+    
     <canvas id="v_canvasMap" width="800px" height="600px" style="border: solid 1px;" tabindex="1">
       Could not create Canvas!
     </canvas>
 
-    
 
     <script type="text/javascript">
       $().ready(function() {

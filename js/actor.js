@@ -8,11 +8,54 @@ var Actor = function(x, y, name, tileType, isPlayer) {
   this.tileType = tileType;
   this.isPlayer = isPlayer;
   this.actorAI;
+  this.movementPathQueue = [];
   
+  /**
+  * Init actor. Called automatically.
+  */
   this.init = function() {
     if(!this.isPlayer) {
       this.actorAI = new ActorAI(this);
     }
+  };
+  
+  /**
+  * Reset path queue.
+  */
+  this.resetMovementPathQueue = function() {
+    return this.movementPathQueue = [];
+  };
+  
+  /**
+  * Do this actor have a movement path queue?
+  */
+  this.hasMovementPathQueue = function() {
+    return this.movementPathQueue.length > 0;
+  };
+  
+  /**
+  * Handle next step of movement path queue.
+  *
+  * @param {Map} map Map instance
+  * @param {Array} actors All actors in map
+  * @return {boolean} True if movement was succesfull, else false
+  */
+  this.handleMovementPathQueue = function(map, actors) {
+    if(this.movementPathQueue.length === 0) {
+      return false;
+    }
+    
+    //Hadle next path step
+    var nextPathStep = this.movementPathQueue.shift();
+    var direction = map.getDirectionForCoordinate(this.x, this.y, nextPathStep[0], nextPathStep[1]);
+    var movementSuccess = this.move(direction, map, actors);
+    
+    //Cancel the whole queue if movement is not possible. Another actor might have moved to path.
+    if(!movementSuccess) {
+      this.resetMovementPathQueue();
+    }
+    
+    return movementSuccess;
   };
   
   /**
@@ -28,10 +71,10 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     var targetY = this.y;
 
     if (direction == DIRECTION.NORTH) {
-      targetY++;
+      targetY--;
     }
     if (direction == DIRECTION.SOUTH) {
-      targetY--;
+      targetY++;
     }
     if (direction == DIRECTION.WEST) {
       targetX--;
@@ -54,18 +97,15 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     }
     
     //Check that there is no another actor in target coordinates
-    var anotherActorFound = false;
-    actors.forEach(function(actor) {
-      if(actor.x === targetX && actor.y === targetY) {
-        anotherActorFound = true;
-      }
-    });
-    if(anotherActorFound) {
+    var actorInTarget = ActorHelper.getActorForCoordinates(targetX, targetY, actors);
+    if(actorInTarget) {
       return false;
     }
     
     this.x = targetX;
     this.y = targetY;
+    
+    return true;
   }
   
   this.init();
