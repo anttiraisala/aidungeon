@@ -109,7 +109,12 @@ var Map = function() {
     for (var x = 0; x < this.width; x++) {
       for (var y = 0; y < this.height; y++) {
         if(this.tiles[x][y].isBlocking(forActor)) {
-          grid.setWalkableAt(x, y, false);
+          if(x === targetX && y === targetY) {
+            //Path target is blocking. Ignore it so path search is succesfull.
+          }
+          else {
+            grid.setWalkableAt(x, y, false);
+          }
         }
       }
     }
@@ -117,13 +122,28 @@ var Map = function() {
     //Set all blocking actors (not including actor to whom the path is searched)
     actors.forEach(function(actor) {
       if(forActor != actor) {
-        grid.setWalkableAt(actor.x, actor.y, false);
+        if(actor.x === targetX && actor.y === targetY) {
+          //Path target is blocking. Ignore it so path search is succesfull.
+        }
+        else {
+          grid.setWalkableAt(actor.x, actor.y, false);
+        }
       }
     });
     
     //Find and return path
     var finder = new PF.AStarFinder();
-    return finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);;
+    return finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);
+  };
+  
+  this.isBlocking = function(actor, targetX, targetY, actors) {
+    if(this.tiles[targetX][targetY].isBlocking(actor)) {
+      return true;
+    }
+    else if(ActorHelper.getActorForCoordinates(targetX, targetY, actors)) {
+      return true;
+    }
+    return false;
   };
   
   /**
@@ -154,5 +174,50 @@ var Map = function() {
     }
     
     return null;
+  };
+  
+  this.calculateFieldOfVIew = function(actor, radius, actors) {
+    var ctx = this;
+    var isCoordinateBlockingFn = function(x, y) {
+      return ctx.isBlocking(actor, x, y, actors);
+    };
+  
+    var params = { 
+      radius: radius, 
+      mapSize: {
+        x: this.width,
+        y: this.height
+      }, 
+      getLightLevel: isCoordinateBlockingFn,
+      gradient: false //Do not use gradients. Visible is 1 and not visible is 0
+    };
+    var light = new LightSource(params);
+    
+    /*
+    * Calculate FOV
+    * Result is array of objects with fields:
+    * x: // x coordinate 
+    * y: // y coordinate 
+    * lightLevel: // the level of light on this tile. 1 is visible, 0 us not visible
+    */
+    return light.update(actor.x, actor.y);
+  };
+  
+  this.getActorsInFieldOfView = function(forActor, radius, actors) {
+    var fow = this.calculateFieldOfVIew(forActor, radius, actors);
+    var visibleActors = [];
+    
+    actors.forEach(function(actor) {
+      fow.forEach(function(coordinate) {
+        if(actor.x === coordinate.x && 
+            actor.y === coordinate.y && 
+            coordinate.lightLevel === 1 && 
+            forActor != actor) {
+          visibleActors.push(actor);
+        }
+      }, this);
+    }, this);
+    
+    return visibleActors;
   };
 };

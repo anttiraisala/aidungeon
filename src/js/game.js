@@ -14,7 +14,7 @@ var Game = function() {
   * Init game and start resource loading.
   */
   this.init = function() {
-    this.actors.push(new Actor(9, 7, "Hero", TILE_TYPE.AVATAR, true));
+    this.actors.push(new Actor(12, 7, "Hero", TILE_TYPE.AVATAR, true));
     this.actors.push(new Actor(4, 5, "orc", TILE_TYPE.MONSTER_ORC, false));
     this.actors.push(new Actor(5, 3, "headless", TILE_TYPE.MONSTER_HEADLESS, false));
     
