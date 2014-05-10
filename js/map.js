@@ -96,20 +96,33 @@ var Map = function() {
   * Find path in map for actor.
   * Uses https://github.com/qiao/PathFinding.js
   *
+  * Returned path does not contain start actor current coordinate. If path target is blocked the 
+  * paths last step is last possible step before the target block.
+  *
   * @param {Actor} forActor Actor to whom the path is searched
   * @param {int} targetX Target map X coordinate
   * @param {int} targetY Target map Y coordinate
   * @param {Array} actors All game actors
-  * @return {Array} Array of arrays that contain x in index 0 and y in index 1. Example: [ [ 1, 2 ], [ 1, 1 ]d ]
+  * @return {Array} Array of arrays that contain x in index 0 and y in index 1. Example: [ [ 1, 2 ], [ 1, 1 ]d ]. 
+  * Empty array if no path is found.
   */
   this.findPath = function(forActor, targetX, targetY, actors) {
+    if(!this.isTargetInMapBounds(targetX, targetY)) {
+      return [];
+    }
+  
     var grid = new PF.Grid(this.width, this.height);
     
     //Set all blockin map coordinates
     for (var x = 0; x < this.width; x++) {
       for (var y = 0; y < this.height; y++) {
         if(this.tiles[x][y].isBlocking(forActor)) {
-          grid.setWalkableAt(x, y, false);
+          if(x === targetX && y === targetY) {
+            //Path target is blocking. Ignore it so path search is succesfull.
+          }
+          else {
+            grid.setWalkableAt(x, y, false);
+          }
         }
       }
     }
@@ -117,13 +130,57 @@ var Map = function() {
     //Set all blocking actors (not including actor to whom the path is searched)
     actors.forEach(function(actor) {
       if(forActor != actor) {
-        grid.setWalkableAt(actor.x, actor.y, false);
+        if(actor.x === targetX && actor.y === targetY) {
+          //Path target is blocking. Ignore it so path search is succesfull.
+        }
+        else {
+          grid.setWalkableAt(actor.x, actor.y, false);
+        }
       }
     });
     
     //Find and return path
     var finder = new PF.AStarFinder();
-    return finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);;
+    var path = finder.findPath(forActor.x, forActor.y, targetX, targetY, grid);
+    
+    //Remove actor current position from path
+    path.shift();
+    
+    return path;
+  };
+  
+  /**
+  * Is target coordinate blocking movement of given actor?
+  *
+  * @param {Actor} forActor Actor who tries to move to target
+  * @param {int} targetX Target map X coordinate. Can be out of map bounds.
+  * @param {int} targetY Target map Y coordinate. Can be out of map bounds.
+  * @param {Array} actors All game actors
+  * @return {boolean} True if target coordinate is blocked or out of bounds.
+  */
+  this.isBlocking = function(actor, targetX, targetY, actors) {
+    if(!this.isTargetInMapBounds(targetX, targetY)) {
+      //Target coordinate is not in map. Blocked.
+      return true;
+    }
+    else if(this.tiles[targetX][targetY].isBlocking(actor)) {
+      return true;
+    }
+    else if(ActorHelper.getActorForCoordinates(targetX, targetY, actors)) {
+      return true;
+    }
+    return false;
+  };
+  
+  /**
+  * Is target coordinates out of map bounds?
+  *
+  * @param {int} targetX Target map X coordinate. Can be out of map bounds.
+  * @param {int} targetY Target map Y coordinate. Can be out of map bounds.
+  * @return {boolean} True if target coordinate is out of bounds.
+  */
+  this.isTargetInMapBounds = function(targetX, targetY) {
+    return this.tiles[targetX] && this.tiles[targetX][targetY];
   };
   
   /**
@@ -154,5 +211,75 @@ var Map = function() {
     }
     
     return null;
+  };
+  
+  /**
+  * Calculates actor FOV (Field Of View). Returns array of coordinates and 
+  * info if actor sees to that coordinate. Actor do not see trouhg obstacles.
+  *
+  * Calculation is done with LightSource-object (from light_source.js).
+  * light_source.js is from http://www.heyjavascript.com/blog/shadowcasting-field-of-view-on-canvas-with-javascript
+  *
+  * @param {Actor} actor Actor whos sight radius is calculated
+  * @param {int} radius Actor sight radius in tiles.
+  * @param {Array} actors All game actors
+  * @return {Array} Array of objects with fields:
+  * x: // x coordinate 
+  * y: // y coordinate 
+  * lightLevel: // the level of light on this tile. 1 is visible, 0 is not visible
+  */
+  this.calculateFieldOfView = function(actor, radius, actors) {
+    var ctx = this;
+    var isCoordinateBlockingFn = function(x, y) {
+      return ctx.isBlocking(actor, x, y, actors);
+    };
+  
+    var params = { 
+      radius: radius, 
+      mapSize: {
+        x: this.width,
+        y: this.height
+      }, 
+      getLightLevel: isCoordinateBlockingFn,
+      gradient: false //Do not use gradients. Visible is 1 and not visible is 0
+    };
+    var light = new LightSource(params);
+    
+    /*
+    * Calculate FOV
+    * Result is array of objects with fields:
+    * x: // x coordinate 
+    * y: // y coordinate 
+    * lightLevel: // the level of light on this tile. 1 is visible, 0 is not visible
+    */
+    return light.update(actor.x, actor.y);
+  };
+  
+  /**
+  * Returns all other actors that are in actors sight.
+  *
+  * @param {Actor} actor Actor whos sight radius is calculated
+  * @param {int} radius Actor sight radius in tiles.
+  * @param {Array} actors All game actors
+  * @return {Array} Array of visible actors. Empty array if no actors are in sight.
+  */
+  this.getActorsInFieldOfView = function(forActor, radius, actors) {
+    var fov = this.calculateFieldOfView(forActor, radius, actors);
+    var visibleActors = [];
+    
+    actors.forEach(function(actor) {
+      fov.forEach(function(coordinate) {
+        if(actor.x === coordinate.x && 
+            actor.y === coordinate.y && 
+            coordinate.lightLevel === 1 && 
+            forActor != actor) {
+          if(visibleActors.indexOf(actor) === -1) { //fov kontains duplicates
+            visibleActors.push(actor);
+          }
+        }
+      }, this);
+    }, this);
+    
+    return visibleActors;
   };
 };

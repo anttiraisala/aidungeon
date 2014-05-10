@@ -84,21 +84,7 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     }
     
     // Check if player can move to target tile and that target is in map limits
-    if(!map.tiles[targetX]) {
-      return false;
-    }
-    else if(!map.tiles[targetX][targetY]) {
-      return false;
-    }
-    
-    var targetTile = map.tiles[targetX][targetY];
-    if (targetTile.isBlocking(this)) {
-      return false;
-    }
-    
-    //Check that there is no another actor in target coordinates
-    var actorInTarget = ActorHelper.getActorForCoordinates(targetX, targetY, actors);
-    if(actorInTarget) {
+    if(map.isBlocking(this, targetX, targetY, actors)) {
       return false;
     }
     
