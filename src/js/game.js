@@ -119,11 +119,7 @@ var Game = function() {
     
     if(mapCoordinate) {
       //Find path to target
-      var path = this.map.findPath(player, mapCoordinate.x, mapCoordinate.y, this.actors);
-      
-      //Remove first step hat is players position
-      path.shift();
-      
+      var path = this.map.findPath(player, mapCoordinate.x, mapCoordinate.y, this.actors);      
       player.movementPathQueue = path;
       
       if(path.length > 0) {

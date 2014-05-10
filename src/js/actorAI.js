@@ -1,18 +1,24 @@
+/**
+* AI for actors that are not controlled by player
+*/
 var ActorAI = function(actor) {
   this.actor = actor;
   this.sightRadius = 3;
   
+  /**
+  * Execute AI turn. Actor is allowed to do one activity in turn.
+  *
+  * @param {Map} map Map instance
+  * @param {Array} actors All game actors
+  */
   this.executeTurn = function(map, actors) {
     //Try to find player in sight
     var visibleActors = map.getActorsInFieldOfView(this.actor, this.sightRadius, actors);
-    var visiblePlayer = ActorHelper.getPlayer(actors);
+    var visiblePlayer = ActorHelper.getPlayer(visibleActors);
     
     //Player is visble, find path to player and move toward it
     if(visiblePlayer) {
       var pathToPlayer = map.findPath(this.actor, visiblePlayer.x, visiblePlayer.y, actors);
-      
-      //Remove first step that is the AIPlayer itself
-      pathToPlayer.shift()
       var firstStep = pathToPlayer.shift();
       
       if(firstStep) {
@@ -27,5 +33,4 @@ var ActorAI = function(actor) {
     var randomDirection = directions[Math.floor(Math.random() * directions.length)];
     this.actor.move(randomDirection, map, actors);
   };
-  
 };
