@@ -3,9 +3,9 @@ aidungeon
 
 Demo: [http://anttiraisala.github.io/aidungeon/](http://anttiraisala.github.io/aidungeon/)
 
-Visio tulevasta toteutuksesta: [https://github.com/anttiraisala/aidungeon/wiki/Visio](https://github.com/anttiraisala/aidungeon/wiki/Visio)
+Visio tulevasta toteutuksesta: [userstories](https://github.com/anttiraisala/aidungeon/wiki/User-Stories)
 
-Todo-lista parannusehdotuksista koodiin: [https://github.com/anttiraisala/aidungeon/wiki/Todo](https://github.com/anttiraisala/aidungeon/wiki/Todo)
+Todo-lista parannusehdotuksista koodiin: [todo](https://github.com/anttiraisala/aidungeon/wiki/Todo)
 
 #### Demon päivitys
 Demon koodit on `gh-pages`-haarassa. Github luo tästä haarasta automaattisesti sivut osoitteeseen http://anttiraisala.github.io/aidungeon/.
