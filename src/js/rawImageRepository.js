@@ -15,6 +15,7 @@ var RawImageRepository = function() {
   
   this.addSourcePath = function(path) {
     sourcePaths.push(path);
+    console.log(sourcePaths);
   };
     
   // Loads image files, and after the last one, calls call-back-function ( readyCallback )

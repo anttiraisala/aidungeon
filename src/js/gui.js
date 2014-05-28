@@ -39,6 +39,8 @@ var Gui = function() {
   */
   this.init = function(map, actors, callback) {
     this.rawImageRepository.addSourcePath("imgs/tileSets/Ultima_5_-_Tiles.png");
+    //this.rawImageRepository.addSourcePath("imgs/tileSets/RetroAnimal-1_halfSize.png");
+    
     this.canvasCtx = $("#v_canvasMap")[0].getContext('2d');
     $("#v_canvasMap").focus();
     
@@ -301,6 +303,13 @@ var Gui = function() {
     headlessLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 304, 224, 16, 16, 0, 0), 900);
     //
     this.imageCellLoops[TILE_TYPE.MONSTER_HEADLESS] = headlessLoop;
+
+    var dogLoop = new ImageCellLoop();
+    dogLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 1, 21, 15, 11, 0, 0), 250);
+    dogLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 17, 21, 14, 11, 0, 0), 250);
+    dogLoop.addFrame(new ImageCell(this.rawImageRepository.getRawImages()[0], 33, 21, 15, 11, 0, 0), 250);
+    //
+    this.imageCellLoops[TILE_TYPE.DOG] = dogLoop;
 
   };
   
