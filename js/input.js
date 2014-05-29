@@ -37,7 +37,7 @@ var Input = function() {
       x: mouseEvent.clientX - rect.left,
       y: mouseEvent.clientY - rect.top
     };
-  }
+  };
   
   /**
   * Keyboard key is pressed. Store key press.
@@ -58,7 +58,7 @@ var Input = function() {
   };
   
   /**
-  * Is player key press intarval valid. Too fast input is prevented.
+  * Is player key press interval valid. Too fast input is prevented.
   *
   * @return {boolean} true if input is not too fast
   */

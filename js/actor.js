@@ -92,7 +92,7 @@ var Actor = function(x, y, name, tileType, isPlayer) {
     this.y = targetY;
     
     return true;
-  }
+  };
   
   this.init();
 };
