@@ -273,7 +273,7 @@ var Map = function() {
             actor.y === coordinate.y && 
             coordinate.lightLevel === 1 && 
             forActor != actor) {
-          if(visibleActors.indexOf(actor) === -1) { //fov kontains duplicates
+          if(visibleActors.indexOf(actor) === -1) { //fov contains duplicates
             visibleActors.push(actor);
           }
         }
