@@ -37,7 +37,7 @@ var Input = function() {
       x: mouseEvent.clientX - rect.left,
       y: mouseEvent.clientY - rect.top
     };
-  }
+  };
   
   /**
   * Keyboard key is pressed. Store key press.
@@ -58,7 +58,7 @@ var Input = function() {
   };
   
   /**
-  * Is player key press intarval valid. Too fast input is prevented.
+  * Is player key press interval valid. Too fast input is prevented.
   *
   * @return {boolean} true if input is not too fast
   */
@@ -153,5 +153,18 @@ var Input = function() {
     });
 
     return result;
+  };
+  
+  /**
+  * Checks if player wants to pass his turn. Either by pushing spacebar or some mouse command.
+  *
+  * @return {boolean} true if player wants to pass
+  */
+  this.isPass = function() {
+    if(this.isKeyDown(KEY.VK_SPACE)){
+    	return true;
+    }
+    
+    return false;
   };
 };
