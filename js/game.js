@@ -105,6 +105,13 @@ var Game = function() {
       player.move(direction, this.map, this.actors);
       return true;
     }
+    
+    // Pass ?
+    if(this.input.isPass()){
+    	return true;
+    }
+    
+    
     return false;
   };
   

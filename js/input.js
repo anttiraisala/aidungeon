@@ -154,4 +154,17 @@ var Input = function() {
 
     return result;
   };
+  
+  /**
+  * Checks if player wants to pass his turn. Either by pushing spacebar or some mouse command.
+  *
+  * @return {boolean} true if player wants to pass
+  */
+  this.isPass = function() {
+    if(this.isKeyDown(KEY.VK_SPACE)){
+    	return true;
+    }
+    
+    return false;
+  };
 };
